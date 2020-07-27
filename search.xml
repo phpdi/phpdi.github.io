@@ -1490,6 +1490,32 @@
       </categories>
   </entry>
   <entry>
+    <title>linux/常用命令</title>
+    <url>/2020/04/01/linux/%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h1 id="cat"><a href="#cat" class="headerlink" title="cat"></a>cat</h1><ul>
+<li>cat mysql.conf | grep -v “#” | grep -v “^$” 查看未被注释掉的行 </li>
+</ul>
+<h1 id="生成随机密码"><a href="#生成随机密码" class="headerlink" title="生成随机密码"></a>生成随机密码</h1><p>date +%s |sha256sum |base64 |head -c 10 ;echo</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>linux/疑难杂症</title>
+    <url>/2020/04/01/linux/%E7%96%91%E9%9A%BE%E6%9D%82%E7%97%87/</url>
+    <content><![CDATA[<h2 id="ubuntu中解决机箱前置耳机没声音"><a href="#ubuntu中解决机箱前置耳机没声音" class="headerlink" title="ubuntu中解决机箱前置耳机没声音"></a>ubuntu中解决机箱前置耳机没声音</h2><p>1.安装pavucontrol软件：<br> <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get install pavucontrol</span><br></pre></td></tr></table></figure><br>2.选择配置-》模拟立体声双工</p>
+<p>3.输出设备-》模拟耳机</p>
+<a id="more"></a>
+<p>##ubuntu解压windows生成的zip文件时乱码问题</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">unzip -O CP936 xxx.zip</span><br></pre></td></tr></table></figure>
+
+<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>疑难杂症</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux/ubuntu 安装各种软件</title>
     <url>/2020/04/01/linux/ubuntu%20%E5%AE%89%E8%A3%85%E5%90%84%E7%A7%8D%E8%BD%AF%E4%BB%B6/</url>
     <content><![CDATA[<h3 id="chrome"><a href="#chrome" class="headerlink" title="chrome"></a>chrome</h3><h4 id="deb包"><a href="#deb包" class="headerlink" title="deb包"></a>deb包</h4><p><a href="http://www.ubuntuchrome.com/" target="_blank" rel="noopener">http://www.ubuntuchrome.com/</a></p>
@@ -1560,32 +1586,6 @@
       </categories>
       <tags>
         <tag>linux软件安装</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux/常用命令</title>
-    <url>/2020/04/01/linux/%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h1 id="cat"><a href="#cat" class="headerlink" title="cat"></a>cat</h1><ul>
-<li>cat mysql.conf | grep -v “#” | grep -v “^$” 查看未被注释掉的行 </li>
-</ul>
-<h1 id="生成随机密码"><a href="#生成随机密码" class="headerlink" title="生成随机密码"></a>生成随机密码</h1><p>date +%s |sha256sum |base64 |head -c 10 ;echo</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>linux/疑难杂症</title>
-    <url>/2020/04/01/linux/%E7%96%91%E9%9A%BE%E6%9D%82%E7%97%87/</url>
-    <content><![CDATA[<h2 id="ubuntu中解决机箱前置耳机没声音"><a href="#ubuntu中解决机箱前置耳机没声音" class="headerlink" title="ubuntu中解决机箱前置耳机没声音"></a>ubuntu中解决机箱前置耳机没声音</h2><p>1.安装pavucontrol软件：<br> <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get install pavucontrol</span><br></pre></td></tr></table></figure><br>2.选择配置-》模拟立体声双工</p>
-<p>3.输出设备-》模拟耳机</p>
-<a id="more"></a>
-<p>##ubuntu解压windows生成的zip文件时乱码问题</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">unzip -O CP936 xxx.zip</span><br></pre></td></tr></table></figure>
-
-<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>疑难杂症</tag>
       </tags>
   </entry>
   <entry>
@@ -3472,6 +3472,53 @@
       </tags>
   </entry>
   <entry>
+    <title>go/gomod</title>
+    <url>/2020/04/01/go/gomod/</url>
+    <content><![CDATA[<h2 id="环境变量GO111MODULE"><a href="#环境变量GO111MODULE" class="headerlink" title="环境变量GO111MODULE"></a>环境变量GO111MODULE</h2><ul>
+<li><p>GO111MODULE=off </p>
+<blockquote>
+<p>go命令从不使用新模块支持。使用GOPATH模式(查找vendor目录和GOPATH路径下的依赖)</p>
+</blockquote>
+</li>
+<li><p>GO111MODULE=on </p>
+<blockquote>
+<p>go命令开启模块支持,此时执行go get 命令,所有依赖都会下到$GOPATH/pkg/mod ,go依赖查找也只会到$GOPATH/pkg/mod进行查找</p>
+</blockquote>
+</li>
+<li><p>GO111MODULE=auto </p>
+<blockquote>
+<p>默认值,go命令根据当前目录启用或禁用模块支持。仅当当前目录位于$GOPATH/src之外并且其本身包含go.mod文件或位于包含go.mod文件的目录下时，才启用模块支持。简而言之,就是项目包含go.mod文件时会开启模块支持</p>
+</blockquote>
+</li>
+</ul>
+<a id="more"></a>
+<p>注意：</p>
+<p>Go 1.13中，module mode优先级提升，GO111MODULE的默认值依然为auto，但在这个auto下，无论是在GOPATH/src下还是GOPATH之外的repo中，只要目录下有go.mod，go编译器都会使用go module来管理依赖。</p>
+<h2 id="go-mod命令"><a href="#go-mod命令" class="headerlink" title="go mod命令"></a>go mod命令</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download    下载依赖的module到本地cache</span><br><span class="line">edit        编辑go.mod文件</span><br><span class="line">graph       打印模块依赖图</span><br><span class="line">init        在当前文件夹下初始化一个新的module, 创建go.mod文件</span><br><span class="line">tidy        增加丢失的module，去掉未用的module</span><br><span class="line">vendor      将依赖复制到vendor下,注意依赖需要在import 中声明后才能进行导入</span><br><span class="line">verify      校验依赖</span><br><span class="line">why         解释为什么需要依赖</span><br></pre></td></tr></table></figure>
+<h2 id="go-get-…"><a href="#go-get-…" class="headerlink" title="go get ./…"></a>go get ./…</h2><p>查找出当前项目的依赖，并进行下载</p>
+<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2><p>GOPROXY 只有在GO111MODULE开启的时候生效，并且使用 go ./… 命令才能用到代理</p>
+<ul>
+<li><a href="http://mirrors.aliyun.com/goproxy" target="_blank" rel="noopener">http://mirrors.aliyun.com/goproxy</a> #阿里云代理</li>
+<li><a href="https://goproxy.cn" target="_blank" rel="noopener">https://goproxy.cn</a> #七牛云代理</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GOPROXY&#x3D;http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用本地包"><a href="#使用本地包" class="headerlink" title="使用本地包"></a>使用本地包</h2><p>go.mod 文件中：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">require modtest v0.0.0</span><br><span class="line">replace modtest v0.0.0 &#x3D;&gt; ..&#x2F;modtest</span><br></pre></td></tr></table></figure>
+
+<h2 id="打包命令"><a href="#打包命令" class="headerlink" title="打包命令"></a>打包命令</h2><p>1.使用GOPATH模式进行打包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GO111MODULE&#x3D;off</span><br><span class="line">go build  -a -v -o app main.go</span><br></pre></td></tr></table></figure>
+<p>2.使用vendor目录下包来进行打包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">go build -mod&#x3D;vendor -a -v -o app main.go</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>go</category>
+      </categories>
+      <tags>
+        <tag>gomod</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>go/golang面试题</title>
     <url>/2020/04/01/go/golang%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
     <content><![CDATA[<h2 id="golang-调度"><a href="#golang-调度" class="headerlink" title="golang 调度"></a>golang 调度</h2><ul>
@@ -3598,53 +3645,6 @@
       </categories>
       <tags>
         <tag>goland面试题</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>go/gomod</title>
-    <url>/2020/04/01/go/gomod/</url>
-    <content><![CDATA[<h2 id="环境变量GO111MODULE"><a href="#环境变量GO111MODULE" class="headerlink" title="环境变量GO111MODULE"></a>环境变量GO111MODULE</h2><ul>
-<li><p>GO111MODULE=off </p>
-<blockquote>
-<p>go命令从不使用新模块支持。使用GOPATH模式(查找vendor目录和GOPATH路径下的依赖)</p>
-</blockquote>
-</li>
-<li><p>GO111MODULE=on </p>
-<blockquote>
-<p>go命令开启模块支持,此时执行go get 命令,所有依赖都会下到$GOPATH/pkg/mod ,go依赖查找也只会到$GOPATH/pkg/mod进行查找</p>
-</blockquote>
-</li>
-<li><p>GO111MODULE=auto </p>
-<blockquote>
-<p>默认值,go命令根据当前目录启用或禁用模块支持。仅当当前目录位于$GOPATH/src之外并且其本身包含go.mod文件或位于包含go.mod文件的目录下时，才启用模块支持。简而言之,就是项目包含go.mod文件时会开启模块支持</p>
-</blockquote>
-</li>
-</ul>
-<a id="more"></a>
-<p>注意：</p>
-<p>Go 1.13中，module mode优先级提升，GO111MODULE的默认值依然为auto，但在这个auto下，无论是在GOPATH/src下还是GOPATH之外的repo中，只要目录下有go.mod，go编译器都会使用go module来管理依赖。</p>
-<h2 id="go-mod命令"><a href="#go-mod命令" class="headerlink" title="go mod命令"></a>go mod命令</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download    下载依赖的module到本地cache</span><br><span class="line">edit        编辑go.mod文件</span><br><span class="line">graph       打印模块依赖图</span><br><span class="line">init        在当前文件夹下初始化一个新的module, 创建go.mod文件</span><br><span class="line">tidy        增加丢失的module，去掉未用的module</span><br><span class="line">vendor      将依赖复制到vendor下,注意依赖需要在import 中声明后才能进行导入</span><br><span class="line">verify      校验依赖</span><br><span class="line">why         解释为什么需要依赖</span><br></pre></td></tr></table></figure>
-<h2 id="go-get-…"><a href="#go-get-…" class="headerlink" title="go get ./…"></a>go get ./…</h2><p>查找出当前项目的依赖，并进行下载</p>
-<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2><p>GOPROXY 只有在GO111MODULE开启的时候生效，并且使用 go ./… 命令才能用到代理</p>
-<ul>
-<li><a href="http://mirrors.aliyun.com/goproxy" target="_blank" rel="noopener">http://mirrors.aliyun.com/goproxy</a> #阿里云代理</li>
-<li><a href="https://goproxy.cn" target="_blank" rel="noopener">https://goproxy.cn</a> #七牛云代理</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GOPROXY&#x3D;http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用本地包"><a href="#使用本地包" class="headerlink" title="使用本地包"></a>使用本地包</h2><p>go.mod 文件中：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">require modtest v0.0.0</span><br><span class="line">replace modtest v0.0.0 &#x3D;&gt; ..&#x2F;modtest</span><br></pre></td></tr></table></figure>
-
-<h2 id="打包命令"><a href="#打包命令" class="headerlink" title="打包命令"></a>打包命令</h2><p>1.使用GOPATH模式进行打包</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GO111MODULE&#x3D;off</span><br><span class="line">go build  -a -v -o app main.go</span><br></pre></td></tr></table></figure>
-<p>2.使用vendor目录下包来进行打包</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">go build -mod&#x3D;vendor -a -v -o app main.go</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>go</category>
-      </categories>
-      <tags>
-        <tag>gomod</tag>
       </tags>
   </entry>
   <entry>
