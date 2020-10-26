@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="baidu-site-verification" content="D033aiBRFi">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://phpdi.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="chromedeb包http:&#x2F;&#x2F;www.ubuntuchrome.com&#x2F; 脚本安装1234sudo wget http:&#x2F;&#x2F;www.linuxidc.com&#x2F;files&#x2F;repo&#x2F;google-chrome.list -P &#x2F;etc&#x2F;apt&#x2F;sources.list.d&#x2F;wget -q -O - https:&#x2F;&#x2F;dl.google.com&#x2F;linux&#x2F;linux_signing_key.pub">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux&#x2F;ubuntu 安装各种软件">
+<meta property="og:url" content="https://phpdi.github.io/2020/09/21/linux/ubuntu%20%E5%AE%89%E8%A3%85%E5%90%84%E7%A7%8D%E8%BD%AF%E4%BB%B6/index.html">
+<meta property="og:site_name" content="phpdi">
+<meta property="og:description" content="chromedeb包http:&#x2F;&#x2F;www.ubuntuchrome.com&#x2F; 脚本安装1234sudo wget http:&#x2F;&#x2F;www.linuxidc.com&#x2F;files&#x2F;repo&#x2F;google-chrome.list -P &#x2F;etc&#x2F;apt&#x2F;sources.list.d&#x2F;wget -q -O - https:&#x2F;&#x2F;dl.google.com&#x2F;linux&#x2F;linux_signing_key.pub">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-21T09:05:30.908Z">
+<meta property="article:modified_time" content="2020-10-23T02:49:41.967Z">
+<meta property="article:author" content="Chen Yu">
+<meta property="article:tag" content="linux软件安装">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://phpdi.github.io/2020/09/21/linux/ubuntu%20%E5%AE%89%E8%A3%85%E5%90%84%E7%A7%8D%E8%BD%AF%E4%BB%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>linux/ubuntu 安装各种软件 | phpdi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">phpdi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">飞向自由</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2020/09/21/linux/ubuntu%20%E5%AE%89%E8%A3%85%E5%90%84%E7%A7%8D%E8%BD%AF%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpeg">
+      <meta itemprop="name" content="Chen Yu">
+      <meta itemprop="description" content="自律给我自由">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="phpdi">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          linux/ubuntu 安装各种软件
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-09-21 17:05:30" itemprop="dateCreated datePublished" datetime="2020-09-21T17:05:30+08:00">2020-09-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-23 10:49:41" itemprop="dateModified" datetime="2020-10-23T10:49:41+08:00">2020-10-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="chrome"><a href="#chrome" class="headerlink" title="chrome"></a>chrome</h3><h4 id="deb包"><a href="#deb包" class="headerlink" title="deb包"></a>deb包</h4><p><a href="http://www.ubuntuchrome.com/" target="_blank" rel="noopener">http://www.ubuntuchrome.com/</a></p>
+<h4 id="脚本安装"><a href="#脚本安装" class="headerlink" title="脚本安装"></a>脚本安装</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo wget http://www.linuxidc.com/files/repo/google-chrome.list -P /etc/apt/sources.list.d/</span><br><span class="line">wget -q -O - https://dl.google.com/linux/linux_signing_key.pub  | sudo apt-key add -</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y google-chrome-stable</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+
+<h3 id="yarn"><a href="#yarn" class="headerlink" title="yarn"></a>yarn</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"deb https://dl.yarnpkg.com/debian/ stable main"</span> | sudo tee /etc/apt/sources.list.d/yarn.list</span><br><span class="line">sudo apt-get update &amp;&amp; sudo apt-get install yarn</span><br></pre></td></tr></table></figure>
+<h3 id="npm"><a href="#npm" class="headerlink" title="npm"></a>npm</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install npm</span><br><span class="line"></span><br><span class="line">sudo npm install -g n <span class="comment">#通过n模块安装指定的nodejs</span></span><br><span class="line">sudo n stable <span class="comment">#安装官方稳定版本</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="pavucontrol-解决机箱前置耳机没声音"><a href="#pavucontrol-解决机箱前置耳机没声音" class="headerlink" title="pavucontrol(解决机箱前置耳机没声音)"></a>pavucontrol(解决机箱前置耳机没声音)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> sudo apt-get install pavucontrol</span><br><span class="line"><span class="comment"># 选择配置-》模拟立体声双工</span></span><br><span class="line"><span class="comment"># 输出设备-》模拟耳机</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="composer"><a href="#composer" class="headerlink" title="composer"></a>composer</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install composer </span><br><span class="line"></span><br><span class="line">composer config -g repo.packagist composer https://packagist.laravel-china.org <span class="comment">#laravel-china 社区镜像</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="lnmp"><a href="#lnmp" class="headerlink" title="lnmp"></a>lnmp</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libcurl4-gnutls-dev <span class="comment">#ubuntu18.04下先安这个curl扩展,不然php 中curl 请求https会报502</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># https://lnmp.org/auto.html 这里可以生成无人值守安装命令</span></span><br><span class="line">wget http://soft.vpser.net/lnmp/lnmp1.5.tar.gz -cO lnmp1.5.tar.gz &amp;&amp; tar zxf lnmp1.5.tar.gz &amp;&amp; <span class="built_in">cd</span> lnmp1.5 &amp;&amp; LNMP_Auto=<span class="string">"y"</span> DBSelect=<span class="string">"4"</span> DB_Root_Password=<span class="string">"root"</span> InstallInnodb=<span class="string">"y"</span> PHPSelect=<span class="string">"8"</span> SelectMalloc=<span class="string">"1"</span> ./install.sh lnmp</span><br></pre></td></tr></table></figure>
+<h3 id="xx-net"><a href="#xx-net" class="headerlink" title="xx_net"></a>xx_net</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span> &amp;&amp; https://github.com/XX-net/XX-Net.git</span><br><span class="line">sudo apt-get install miredo <span class="comment">#开启ipv6</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a href="https://crxdl.com/" target="_blank" rel="noopener">需要的crx</a></p>
+</blockquote>
+<h4 id="ubuntu终端使用xx-net"><a href="#ubuntu终端使用xx-net" class="headerlink" title="ubuntu终端使用xx_net"></a>ubuntu终端使用xx_net</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo  apt install privoxy</span><br><span class="line"></span><br><span class="line">#XX-Net默认的端口是8087，对https代理  ,XX-Net默认的端口是8087，对http代理</span><br><span class="line">export https_proxy&#x3D;127.0.0.1:8087</span><br><span class="line">export http_proxy&#x3D;127.0.0.1:8087 </span><br><span class="line"></span><br><span class="line"># 测试</span><br><span class="line">curl https:&#x2F;&#x2F;www.google.com</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="Tim"><a href="#Tim" class="headerlink" title="Tim"></a>Tim</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/ &amp;&amp; sudo git <span class="built_in">clone</span> https://gitee.com/wszqkzqk/deepin-wine-for-ubuntu.git &amp;&amp; <span class="built_in">cd</span> deepin-wine-for-ubuntu &amp;&amp; ./install.sh</span><br><span class="line">sudo apt-get install -f <span class="comment"># 如果提示依赖,执行这个</span></span><br><span class="line">wget https://mirrors.aliyun.com/deepin/pool/non-free/d/deepin.com.qq.office/deepin.com.qq.office_2.0.0deepin4_i386.deb   <span class="comment">#tim</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="supervisor-进程管理工具"><a href="#supervisor-进程管理工具" class="headerlink" title="supervisor(进程管理工具)"></a>supervisor(进程管理工具)</h3><p>Supervisor是用Python开发的一套通用的进程管理程序，能将一个普通的命令行进程变为后台daemon，并监控进程状态，异常退出时能自动重启。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install supervisor</span><br></pre></td></tr></table></figure>
+
+<h3 id="java"><a href="#java" class="headerlink" title="java"></a>java</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">java -version 	<span class="comment">#输出</span></span><br><span class="line">Command <span class="string">'java'</span> not found, but can be installed with:</span><br><span class="line">sudo apt install default-jre            </span><br><span class="line">sudo apt install openjdk-11-jre-headless</span><br><span class="line">sudo apt install openjdk-8-jre-headless </span><br><span class="line"></span><br><span class="line">sudo apt install default-jre  <span class="comment">#安装默认版本的java,ubuntu 默认安装的是java10.0.2</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="jmeter-apache压测工具"><a href="#jmeter-apache压测工具" class="headerlink" title="jmeter (apache压测工具)"></a>jmeter (apache压测工具)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install jmeter</span><br></pre></td></tr></table></figure>
+<h3 id="系统托盘"><a href="#系统托盘" class="headerlink" title="系统托盘"></a>系统托盘</h3><p>安装 Gnome Shell 插件：TopIcons Plus</p>
+<h3 id="golang-环境安装"><a href="#golang-环境安装" class="headerlink" title="golang 环境安装"></a>golang 环境安装</h3><p>1.到<a href="https://golang.org/dl/" target="_blank" rel="noopener">官网</a>下载最新的golang包，需要翻墙</p>
+<p>2.将包解压到/usr/local下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tar -C /usr/<span class="built_in">local</span> -xzf go1.11.4.linux-amd64.tar.gz</span><br></pre></td></tr></table></figure>
+<p>3.将go执行命令放到环境变量中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo vim  ~/.profile</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/<span class="built_in">local</span>/go/bin</span><br><span class="line"><span class="built_in">export</span> GOROOT=/usr/<span class="built_in">local</span>/go</span><br><span class="line"><span class="built_in">export</span> GO111MODULE=on</span><br><span class="line"><span class="built_in">export</span> GOPROXY=https://goproxy.cn</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> ~/.profile</span><br></pre></td></tr></table></figure>
+<p>4.go version 测试是否安装成功</p>
+<h3 id="protoc-安装"><a href="#protoc-安装" class="headerlink" title="protoc 安装"></a>protoc 安装</h3><ol>
+<li>下载protoc包<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;protocolbuffers&#x2F;protobuf&#x2F;releases&#x2F;tag&#x2F;v3.11.4</span><br></pre></td></tr></table></figure></li>
+<li>解压<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo unzip protoc-3.11.4-linux-x86_64.zip -d &#x2F;usr&#x2F;local&#x2F;</span><br></pre></td></tr></table></figure></li>
+<li>protoc-gen-go 编译插件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get -u github.com&#x2F;golang&#x2F;protobuf&#x2F;protoc-gen-go</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<blockquote>
+<p>protoc –go_out=plugins=grpc:. route_guide.proto</p>
+</blockquote>
+<h3 id="Wireshark-抓包工具"><a href="#Wireshark-抓包工具" class="headerlink" title="Wireshark 抓包工具"></a>Wireshark 抓包工具</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo add-apt-repository ppa:wireshark-dev&#x2F;stable </span><br><span class="line">sudo apt update</span><br><span class="line">sudo apt -y install wireshark</span><br></pre></td></tr></table></figure>
+
+<h3 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h3><h4 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install docker.io</span><br><span class="line">sudo gpasswd -a $USER docker </span><br><span class="line">newgrp docker</span><br></pre></td></tr></table></figure>
+<h4 id="更换docker远程镜像"><a href="#更换docker远程镜像" class="headerlink" title="更换docker远程镜像"></a>更换docker远程镜像</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/docker/daemon.json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"registry-mirrors"</span>: [<span class="string">"https://9lrfffi7.mirror.aliyuncs.com"</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br><span class="line">docker info</span><br></pre></td></tr></table></figure>
+
+<h4 id="docker-compose"><a href="#docker-compose" class="headerlink" title="docker-compose"></a>docker-compose</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo curl -L --fail https:&#x2F;&#x2F;github.com&#x2F;docker&#x2F;compose&#x2F;releases&#x2F;download&#x2F;1.23.1&#x2F;run.sh -o &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-compose</span><br><span class="line">sudo chmod +x &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-compose</span><br><span class="line">docker-compose --version</span><br></pre></td></tr></table></figure>
+
+<h4 id="docker-machine"><a href="#docker-machine" class="headerlink" title="docker-machine"></a>docker-machine</h4><p><a href="https://docs.docker.com/machine/install-machine/" target="_blank" rel="noopener">官方网站</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">base&#x3D;https:&#x2F;&#x2F;github.com&#x2F;docker&#x2F;machine&#x2F;releases&#x2F;download&#x2F;v0.16.0 &amp;&amp;</span><br><span class="line">  curl -L $base&#x2F;docker-machine-$(uname -s)-$(uname -m) &gt;&#x2F;tmp&#x2F;docker-machine &amp;&amp;</span><br><span class="line">  sudo mv &#x2F;tmp&#x2F;docker-machine &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-machine &amp;&amp;</span><br><span class="line">  chmod +x &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-machine</span><br></pre></td></tr></table></figure>
+
+<h4 id="mysql-workbench"><a href="#mysql-workbench" class="headerlink" title="mysql-workbench"></a>mysql-workbench</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install mysql-workbench</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="安装nps-内网穿透"><a href="#安装nps-内网穿透" class="headerlink" title="安装nps 内网穿透"></a>安装nps 内网穿透</h2><ol>
+<li>安装内网穿透服务端<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir &#x2F;usr&#x2F;local&#x2F;nps &amp;&amp; &#x2F;usr&#x2F;local&#x2F;nps  &amp;&amp; wget https:&#x2F;&#x2F;github.com&#x2F;ehang-io&#x2F;nps&#x2F;releases&#x2F;download&#x2F;v0.26.8&#x2F;linux_amd64_server.tar.gz</span><br><span class="line">tar -zxf linux_amd64_server.tar.gz</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag"># linux软件安装</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/21/photography/%E6%91%84%E5%BD%B1%E5%85%A5%E9%97%A8/" rel="prev" title="photography/摄影入门">
+      <i class="fa fa-chevron-left"></i> photography/摄影入门
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/22/photography/%E6%9E%84%E5%9B%BE/" rel="next" title="photography/构图">
+      photography/构图 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#chrome"><span class="nav-number">1.</span> <span class="nav-text">chrome</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#deb包"><span class="nav-number">1.1.</span> <span class="nav-text">deb包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#脚本安装"><span class="nav-number">1.2.</span> <span class="nav-text">脚本安装</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yarn"><span class="nav-number">2.</span> <span class="nav-text">yarn</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#npm"><span class="nav-number">3.</span> <span class="nav-text">npm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pavucontrol-解决机箱前置耳机没声音"><span class="nav-number">4.</span> <span class="nav-text">pavucontrol(解决机箱前置耳机没声音)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#composer"><span class="nav-number">5.</span> <span class="nav-text">composer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lnmp"><span class="nav-number">6.</span> <span class="nav-text">lnmp</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xx-net"><span class="nav-number">7.</span> <span class="nav-text">xx_net</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ubuntu终端使用xx-net"><span class="nav-number">7.1.</span> <span class="nav-text">ubuntu终端使用xx_net</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tim"><span class="nav-number">8.</span> <span class="nav-text">Tim</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#supervisor-进程管理工具"><span class="nav-number">9.</span> <span class="nav-text">supervisor(进程管理工具)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#java"><span class="nav-number">10.</span> <span class="nav-text">java</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jmeter-apache压测工具"><span class="nav-number">11.</span> <span class="nav-text">jmeter (apache压测工具)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#系统托盘"><span class="nav-number">12.</span> <span class="nav-text">系统托盘</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#golang-环境安装"><span class="nav-number">13.</span> <span class="nav-text">golang 环境安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#protoc-安装"><span class="nav-number">14.</span> <span class="nav-text">protoc 安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wireshark-抓包工具"><span class="nav-number">15.</span> <span class="nav-text">Wireshark 抓包工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Docker"><span class="nav-number">16.</span> <span class="nav-text">Docker</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#docker"><span class="nav-number">16.1.</span> <span class="nav-text">docker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#更换docker远程镜像"><span class="nav-number">16.2.</span> <span class="nav-text">更换docker远程镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#docker-compose"><span class="nav-number">16.3.</span> <span class="nav-text">docker-compose</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#docker-machine"><span class="nav-number">16.4.</span> <span class="nav-text">docker-machine</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mysql-workbench"><span class="nav-number">16.5.</span> <span class="nav-text">mysql-workbench</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装nps-内网穿透"><span class="nav-number"></span> <span class="nav-text">安装nps 内网穿透</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chen Yu"
+      src="/images/head.jpeg">
+  <p class="site-author-name" itemprop="name">Chen Yu</p>
+  <div class="site-description" itemprop="description">自律给我自由</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+<div>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv" style='display:none'>
+    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    <span class="post-meta-divider">|</span>
+</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+    有<span id="busuanzi_value_site_uv"></span>人看过我的博客啦
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

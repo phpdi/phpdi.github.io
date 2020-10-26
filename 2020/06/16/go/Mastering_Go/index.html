@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="baidu-site-verification" content="D033aiBRFi">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://phpdi.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="第2章 Go内部机制垃圾回收垃圾回收是释放掉那些不再使用的内存空间的过程.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go&#x2F;Mastering_Go">
+<meta property="og:url" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/index.html">
+<meta property="og:site_name" content="phpdi">
+<meta property="og:description" content="第2章 Go内部机制垃圾回收垃圾回收是释放掉那些不再使用的内存空间的过程.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-1021941531ecffc3.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-9ae46a88a13613ee.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-21bc289a81b75236.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-e0535bd79c7996e8.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-6c9ecb92555f14e2.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-0c915b27be3f258d.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-1306d93ef2c96426.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-75599afe8b517f5c.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-57b2f544aa5ff318.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-714367c5511b3cf4.png">
+<meta property="article:published_time" content="2020-06-16T09:37:51.777Z">
+<meta property="article:modified_time" content="2020-07-24T09:46:20.264Z">
+<meta property="article:author" content="Chen Yu">
+<meta property="article:tag" content="go三色标记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://phpdi.github.io/2020/06/16/go/Mastering_Go/6328562-1021941531ecffc3.png">
+
+<link rel="canonical" href="https://phpdi.github.io/2020/06/16/go/Mastering_Go/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>go/Mastering_Go | phpdi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">phpdi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">飞向自由</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2020/06/16/go/Mastering_Go/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpeg">
+      <meta itemprop="name" content="Chen Yu">
+      <meta itemprop="description" content="自律给我自由">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="phpdi">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          go/Mastering_Go
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-16 17:37:51" itemprop="dateCreated datePublished" datetime="2020-06-16T17:37:51+08:00">2020-06-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-24 17:46:20" itemprop="dateModified" datetime="2020-07-24T17:46:20+08:00">2020-07-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index">
+                    <span itemprop="name">go</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="第2章-Go内部机制"><a href="#第2章-Go内部机制" class="headerlink" title="第2章 Go内部机制"></a>第2章 Go内部机制</h1><h2 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h2><p>垃圾回收是释放掉那些不再使用的内存空间的过程.</p>
+<a id="more"></a>
+
+
+<h2 id="golang-GC算法演变过程"><a href="#golang-GC算法演变过程" class="headerlink" title="golang GC算法演变过程"></a>golang GC算法演变过程</h2><table>
+<thead>
+<tr>
+<th align="center">版本</th>
+<th align="center">GC算法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">v1.1</td>
+<td align="center">STW(stop the word)</td>
+</tr>
+<tr>
+<td align="center">v1.3</td>
+<td align="center">Mark STW,Sweep(标记清除)</td>
+</tr>
+<tr>
+<td align="center">v1.5</td>
+<td align="center">三色标记</td>
+</tr>
+<tr>
+<td align="center">v1.8</td>
+<td align="center">hybrid write barrier(三色标记基础上加入写屏障)</td>
+</tr>
+</tbody></table>
+<h2 id="标记清除算法-mark-and-sweep"><a href="#标记清除算法-mark-and-sweep" class="headerlink" title="标记清除算法(mark and sweep)"></a>标记清除算法(mark and sweep)</h2><h3 id="主要包含两个步骤"><a href="#主要包含两个步骤" class="headerlink" title="主要包含两个步骤:"></a>主要包含两个步骤:</h3><p>1.找出不可达对象,然后做上标记<br>2.回收标记好的对象</p>
+<blockquote>
+<p>mark and sweep 算法在执行的时候,需要程序暂停,即stop the world</p>
+</blockquote>
+<h3 id="标记清除算法存在的问题"><a href="#标记清除算法存在的问题" class="headerlink" title="标记清除算法存在的问题"></a>标记清除算法存在的问题</h3><ul>
+<li>stop the world 程序暂停,即程序会出现卡顿</li>
+<li>标记需要扫描整个堆(heap)</li>
+<li>清楚数据会产生heap碎片</li>
+</ul>
+<h2 id="三色标记清除算法"><a href="#三色标记清除算法" class="headerlink" title="三色标记清除算法"></a>三色标记清除算法</h2><p>三色标记清除算法背后的首要原则就是它把堆中的对象根据它们的颜色分到不同集合里面，颜色是根据算法进行标记的  </p>
+<ul>
+<li>黑色集合 指针指向白色集合。</li>
+<li>白色集合中的对象允许有指针指向黑色集合,白色集合中的对象就是垃圾回收的候选对象。</li>
+<li>灰色集合可能会有指针指向白色集合里的对象。</li>
+</ul>
+<h3 id="写屏障"><a href="#写屏障" class="headerlink" title="写屏障"></a>写屏障</h3><p>每次堆中的指针被修改写屏障都会去执行。如果堆中对象的指针被修改，就意味着那个对象现在是可触达的，写屏障会把它标记为灰色并把它放到灰色集合中。<br>修改器 运行写屏障,从而保证黑色集合中没有任何元素的指针去指向白色集合中的元素。<br>写屏障直观作用有两个:<br>1.process新生成的内存对象会被直接标记成灰色<br>2.位于黑色集合中的内存对象引用了一个白色集合中的对象,写屏障会将白色集合的这个对象标记为灰色  </p>
+<h3 id="三色标记过程"><a href="#三色标记过程" class="headerlink" title="三色标记过程"></a>三色标记过程</h3><p>1.首先：程序创建的对象都标记为白色。<br><img src="/2020/06/16/go/Mastering_Go/6328562-1021941531ecffc3.png" alt><br>2.gc开始：扫描所有可到达的对象，标记为灰色<br><img src="/2020/06/16/go/Mastering_Go/6328562-9ae46a88a13613ee.png" alt><br>3.从灰色对象中找到其引用对象标记为灰色，把灰色对象本身标记为黑色<br><img src="/2020/06/16/go/Mastering_Go/6328562-21bc289a81b75236.png" alt><br>4.监视对象中的内存修改，并持续上一步的操作，直到灰色标记的对象不存在<br><img src="/2020/06/16/go/Mastering_Go/6328562-e0535bd79c7996e8.png" alt><br>5.此时，gc回收白色对象。<br><img src="/2020/06/16/go/Mastering_Go/6328562-6c9ecb92555f14e2.png" alt><br>6.最后，将所有黑色对象变为白色，并重复以上所有过程。<br><img src="/2020/06/16/go/Mastering_Go/6328562-0c915b27be3f258d.png" alt></p>
+<h3 id="gc和用户逻辑如何并行操作"><a href="#gc和用户逻辑如何并行操作" class="headerlink" title="gc和用户逻辑如何并行操作"></a>gc和用户逻辑如何并行操作</h3><p>标记-清除(mark and sweep)算法的STW(stop the world)操作，就是runtime把所有的线程全部冻结掉，所有的线程全部冻结意味着用户逻辑是暂停的。这样所有的对象都不会被修改了，这时候去扫描是绝对安全的。<br>Go如何减短这个过程呢？标记-清除(mark and sweep)算法包含两部分逻辑：标记和清除。<br>我们知道Golang三色标记法中最后只剩下的黑白两种对象，黑色对象是程序恢复后接着使用的对象，如果不碰触黑色对象，只清除白色的对象，肯定不会影响程序逻辑。所以：清除操作和用户逻辑可以并发。<br>标记操作和用户逻辑也是并发的，用户逻辑会时常生成对象或者改变对象的引用，那么标记和用户逻辑如何并发呢？<br><strong>process新生成对象的时候，GC该如何操作呢？不会乱吗？</strong><br>我们看如下图，在此状态下：process程序又新生成了一个对象，我们设想会变成这样：<br><img src="/2020/06/16/go/Mastering_Go/6328562-1306d93ef2c96426.png" alt><br>但是这样显然是不对的，因为按照三色标记法的步骤，这样新生成的对象A最后会被清除掉，这样会影响程序逻辑。<br>Golang为了解决这个问题，引入了写屏障这个机制。<br>写屏障：该屏障之前的写操作和之后的写操作相比，先被系统其它组件感知。<br>通俗的讲：就是在gc跑的过程中，可以监控对象的内存修改，并对对象进行重新标记。(实际上也是超短暂的stw，然后对对象进行标记)<br>在上述情况中，新生成的对象，一律都标位灰色！<br><img src="/2020/06/16/go/Mastering_Go/6328562-75599afe8b517f5c.png" alt><br><strong>那么，灰色或者黑色对象的引用改为白色对象的时候，Golang是该如何操作的？</strong><br>看如下图，一个黑色对象引用了曾经标记的白色对象。<br><img src="/2020/06/16/go/Mastering_Go/6328562-57b2f544aa5ff318.png" alt><br>这时候，写屏障机制被触发，向GC发送信号，GC重新扫描对象并标位灰色。<br><img src="/2020/06/16/go/Mastering_Go/6328562-714367c5511b3cf4.png" alt><br>因此，gc一旦开始，无论是创建对象还是对象的引用改变，都会先变为灰色。</p>
+<h3 id="Unsafe-Code"><a href="#Unsafe-Code" class="headerlink" title="Unsafe Code"></a>Unsafe Code</h3><p>Unsafe code是一种绕过go类型安全和内存安全检查的Go代码。</p>
+<h3 id="defer-panic-recover"><a href="#defer-panic-recover" class="headerlink" title="defer panic recover"></a>defer panic recover</h3><ul>
+<li>defer是一种栈结构,先入后出</li>
+<li>panic 会终止Go程序的当前流程开始panicking,根据入栈顺序调用defer,若某个defer中,有recover,则捕获panic,程序回到正常执行流程</li>
+<li>recover,在defer函数中直接调用recover才能捕获panic</li>
+</ul>
+<h1 id="Go基本数据类型"><a href="#Go基本数据类型" class="headerlink" title="Go基本数据类型"></a>Go基本数据类型</h1><h2 id="Go切片"><a href="#Go切片" class="headerlink" title="Go切片"></a>Go切片</h2><h3 id="切片"><a href="#切片" class="headerlink" title="切片"></a>切片</h3><p>切片的底层是数组，这意味着Go为每一个切片创建一个底层数组<br>切片作为函数的形参时是传引用操作，传递的是指向切片的内存地址，这意味着在函数中对切片的任何操作都会在函数结束后体现出来。另外，函数中传递切片要比传递同样元素数量的数组高效，因为Go只是传递指向切片的内存地址，而非拷贝整个切片。  </p>
+<h3 id="切片扩容"><a href="#切片扩容" class="headerlink" title="切片扩容"></a>切片扩容</h3><p>GoLang中的切片扩容机制，与切片的数据类型、原本切片的容量、所需要的容量都有关系，比较复杂。对于常见数据类型，在元素数量较少时，大致可以认为扩容是按照翻倍进行的。</p>
+<h3 id="大切片问题"><a href="#大切片问题" class="headerlink" title="大切片问题"></a>大切片问题</h3><p>若果存在一个很大的切片,而只需要使用很少的一部分,应当将此部分拷贝出来,否则因为这一小部分,会导致改切片不能被GC回收,典型问题将大文件的内容读到切片中，但是你只是想使用其中一小部分。  </p>
+<h3 id="字节切片"><a href="#字节切片" class="headerlink" title="字节切片"></a>字节切片</h3><p>字节切片的操作与其他类型的切片并没有什么区别，但是在输入输出中（网络，文件流等）使用的非常多  </p>
+<h3 id="copy-函数"><a href="#copy-函数" class="headerlink" title="copy()函数"></a>copy()函数</h3><p>内建函数copy(dst,src) 会以cap(dst)和cap(src)中的最小值为复制长度。<br>如果目标dst没有容量,则拷贝不到任何内容<br>最新的go版本中(go1.13),copy 已经支持了数组和切片的相互拷贝</p>
+<h3 id="多维切片"><a href="#多维切片" class="headerlink" title="多维切片"></a>多维切片</h3><p>如果你发现你的代码中出现很多多维切片，你就要考虑你的代码设计是否合理并且使用不需要多维切片的更简单的设计。</p>
+<h2 id="Go-map"><a href="#Go-map" class="headerlink" title="Go map"></a>Go map</h2><p>与切片与数组相比，map（映射）的功能要强大的多，但是具有灵活性的同时也伴随着性能损耗，实现Go map往往需要更多的处理能力。但是不用担心，Go的内置数据结构是非常高效的，所以当你需要map的时候就尽情地去用吧！</p>
+<h2 id="常量"><a href="#常量" class="headerlink" title="常量"></a>常量</h2><p>const 定义的常量,特别是数字类型,在定义的时候没有明确类型的化,那么该常量的类型在真正被使用的时候才会确定<br>严格来说,常量在编译期间就被确定了,所以定义成常量的值必须是编译器能够确定的值,在程序运行期间,不能修改的值<br>Go可以使用布尔类型、字符串、或者数字类型存储常量的值。<br>代码建议：如果你要用到许多常量，最好将它们定义到同一个包中。  </p>
+<h2 id="go指针"><a href="#go指针" class="headerlink" title="go指针"></a>go指针</h2><p>使用指针时，<em>可以获取指针的值，此操作成为指针的解引用，</em>也叫取值操作符；&amp;可以获取非指针变量的地址，叫做取地址操作符。<br>变量=变量内存地址+变量值,以下代码可以很好的体现这个关系:  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">    var a int</span><br><span class="line">    var b *int</span><br><span class="line"></span><br><span class="line">    a&#x3D;5</span><br><span class="line">    b&#x3D;&amp;a</span><br><span class="line"></span><br><span class="line">    fmt.Println(&quot;a变量指针:&quot;,&amp;a)</span><br><span class="line">    fmt.Println(&quot;a变量值:&quot;,a)</span><br><span class="line">    fmt.Println(&quot;b变量指针:&quot;,&amp;b)</span><br><span class="line">    fmt.Println(&quot;b变量值:&quot;,b)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出: </span><br><span class="line">a变量指针: 0xc000088010</span><br><span class="line">a变量值: 5</span><br><span class="line">b变量指针: 0xc00008c018</span><br><span class="line">b变量值: 0xc000088010</span><br></pre></td></tr></table></figure>
+
+<h2 id="时间与日期的处理技巧"><a href="#时间与日期的处理技巧" class="headerlink" title="时间与日期的处理技巧"></a>时间与日期的处理技巧</h2><h3 id="解析时间"><a href="#解析时间" class="headerlink" title="解析时间"></a>解析时间</h3><p>time.Parse(layout string,value string)此函数用于字符串解析成golang时间类型,如果时间错误,将不能被解析 </p>
+<h1 id="组合类型的使用"><a href="#组合类型的使用" class="headerlink" title="组合类型的使用"></a>组合类型的使用</h1><h2 id="使用new关键字"><a href="#使用new关键字" class="headerlink" title="使用new关键字"></a>使用new关键字</h2><p>new和make最大的区别就是：new返回的是空的内存地址，即没有做初始化。另外，make仅可以用来创建映射，切片和通道，而且并不是返回指针。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0/" rel="tag"># go三色标记</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/11/http/Http%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97/" rel="prev" title="http/Http权威指南">
+      <i class="fa fa-chevron-left"></i> http/Http权威指南
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/22/micro/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%89%8B%E8%AE%B0/" rel="next" title="micro/微服务手记">
+      micro/微服务手记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#第2章-Go内部机制"><span class="nav-number">1.</span> <span class="nav-text">第2章 Go内部机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#垃圾回收"><span class="nav-number">1.1.</span> <span class="nav-text">垃圾回收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#golang-GC算法演变过程"><span class="nav-number">1.2.</span> <span class="nav-text">golang GC算法演变过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标记清除算法-mark-and-sweep"><span class="nav-number">1.3.</span> <span class="nav-text">标记清除算法(mark and sweep)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要包含两个步骤"><span class="nav-number">1.3.1.</span> <span class="nav-text">主要包含两个步骤:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#标记清除算法存在的问题"><span class="nav-number">1.3.2.</span> <span class="nav-text">标记清除算法存在的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三色标记清除算法"><span class="nav-number">1.4.</span> <span class="nav-text">三色标记清除算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#写屏障"><span class="nav-number">1.4.1.</span> <span class="nav-text">写屏障</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三色标记过程"><span class="nav-number">1.4.2.</span> <span class="nav-text">三色标记过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gc和用户逻辑如何并行操作"><span class="nav-number">1.4.3.</span> <span class="nav-text">gc和用户逻辑如何并行操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unsafe-Code"><span class="nav-number">1.4.4.</span> <span class="nav-text">Unsafe Code</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer-panic-recover"><span class="nav-number">1.4.5.</span> <span class="nav-text">defer panic recover</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Go基本数据类型"><span class="nav-number">2.</span> <span class="nav-text">Go基本数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Go切片"><span class="nav-number">2.1.</span> <span class="nav-text">Go切片</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#切片"><span class="nav-number">2.1.1.</span> <span class="nav-text">切片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#切片扩容"><span class="nav-number">2.1.2.</span> <span class="nav-text">切片扩容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#大切片问题"><span class="nav-number">2.1.3.</span> <span class="nav-text">大切片问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字节切片"><span class="nav-number">2.1.4.</span> <span class="nav-text">字节切片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#copy-函数"><span class="nav-number">2.1.5.</span> <span class="nav-text">copy()函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多维切片"><span class="nav-number">2.1.6.</span> <span class="nav-text">多维切片</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Go-map"><span class="nav-number">2.2.</span> <span class="nav-text">Go map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常量"><span class="nav-number">2.3.</span> <span class="nav-text">常量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go指针"><span class="nav-number">2.4.</span> <span class="nav-text">go指针</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#时间与日期的处理技巧"><span class="nav-number">2.5.</span> <span class="nav-text">时间与日期的处理技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#解析时间"><span class="nav-number">2.5.1.</span> <span class="nav-text">解析时间</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#组合类型的使用"><span class="nav-number">3.</span> <span class="nav-text">组合类型的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用new关键字"><span class="nav-number">3.1.</span> <span class="nav-text">使用new关键字</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chen Yu"
+      src="/images/head.jpeg">
+  <p class="site-author-name" itemprop="name">Chen Yu</p>
+  <div class="site-description" itemprop="description">自律给我自由</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+<div>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv" style='display:none'>
+    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    <span class="post-meta-divider">|</span>
+</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+    有<span id="busuanzi_value_site_uv"></span>人看过我的博客啦
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="baidu-site-verification" content="D033aiBRFi">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://phpdi.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="第二章 计算机主城原理之概述篇 计算机的发展历史大概可以分为几个阶段？每个阶段的计算机分别有什么特点？   四个阶段：电子管计算机、晶体管计算机、集成电路计算机、超大规模集成电路计算机。     你了解“摩尔定律”吗？“摩尔定律”对现代计算机产生了什么影响？ 摩尔定律：摩尔定律是由英特尔（Intel）创始人之一戈登·摩尔（Gordon Moore）提出来的。其内容为：当价格不变时，集成电路上可容纳">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux&#x2F;计算机原理+操作系统基础+计算机网络面试题">
+<meta property="og:url" content="https://phpdi.github.io/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/index.html">
+<meta property="og:site_name" content="phpdi">
+<meta property="og:description" content="第二章 计算机主城原理之概述篇 计算机的发展历史大概可以分为几个阶段？每个阶段的计算机分别有什么特点？   四个阶段：电子管计算机、晶体管计算机、集成电路计算机、超大规模集成电路计算机。     你了解“摩尔定律”吗？“摩尔定律”对现代计算机产生了什么影响？ 摩尔定律：摩尔定律是由英特尔（Intel）创始人之一戈登·摩尔（Gordon Moore）提出来的。其内容为：当价格不变时，集成电路上可容纳">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/5e3975ac093e3e8608760255.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/5e3975b70947591b13630515.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/5e3977c5095f8b7910140335.png">
+<meta property="article:published_time" content="2020-06-04T05:49:15.156Z">
+<meta property="article:modified_time" content="2020-07-24T09:49:30.029Z">
+<meta property="article:author" content="Chen Yu">
+<meta property="article:tag" content="linux习题">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://phpdi.github.io/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/5e3975ac093e3e8608760255.png">
+
+<link rel="canonical" href="https://phpdi.github.io/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>linux/计算机原理+操作系统基础+计算机网络面试题 | phpdi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">phpdi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">飞向自由</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpeg">
+      <meta itemprop="name" content="Chen Yu">
+      <meta itemprop="description" content="自律给我自由">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="phpdi">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          linux/计算机原理+操作系统基础+计算机网络面试题
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-04 13:49:15" itemprop="dateCreated datePublished" datetime="2020-06-04T13:49:15+08:00">2020-06-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-24 17:49:30" itemprop="dateModified" datetime="2020-07-24T17:49:30+08:00">2020-07-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="第二章-计算机主城原理之概述篇"><a href="#第二章-计算机主城原理之概述篇" class="headerlink" title="第二章 计算机主城原理之概述篇"></a>第二章 计算机主城原理之概述篇</h1><ul>
+<li>计算机的发展历史大概可以分为几个阶段？每个阶段的计算机分别有什么特点？  <blockquote>
+<p>四个阶段：电子管计算机、晶体管计算机、集成电路计算机、超大规模集成电路计算机。  </p>
+</blockquote>
+</li>
+<li>你了解“摩尔定律”吗？“摩尔定律”对现代计算机产生了什么影响？<blockquote>
+<p>摩尔定律：摩尔定律是由英特尔（Intel）创始人之一戈登·摩尔（Gordon Moore）提出来的。其内容为：当价格不变时，集成电路上可容纳的元器件的数目，约每隔18-24个月便会增加一倍，性能也将提升一倍。换言之，每一美元所能买到的电脑性能，将每隔18-24个月翻一倍以上。这一定律揭示了信息技术进步的速度。尽管这种趋势已经持续了超过半个世纪，摩尔定律仍应该被认为是观测或推测，而不是一个物理或自然法。</p>
+</blockquote>
+<a id="more"></a>
+
+
+</li>
+</ul>
+<ul>
+<li>你了解冯诺依曼机吗？你是否可以大概描述冯诺依曼机的基本组成和工作原理？冯诺依曼机相对于之前的计算机有什么重要改进？<blockquote>
+<p>冯诺依曼机有五大组成部分：输入设备、输出设备、运算器、存储器、控制器。冯诺依曼机把程序指令和运行数据存储起来，使得计算机从专用电路计算机发展成为通用电路计算机。</p>
+</blockquote>
+</li>
+<li>什么是冯诺依曼瓶颈？冯诺依曼瓶颈对现代计算机产生了什么影响？<blockquote>
+<p>冯诺依曼瓶颈指的是存储器和运算器之间的访问速率差异巨大，使得计算机性能无法提升。现代计算机以存储器为核心，根据局部性原理设计了存储器的层次结构，大幅提升计算机性能。</p>
+</blockquote>
+</li>
+<li>你了解程序解释和程序翻译吗？什么是编译型语言，什么是解释型语言呢？<blockquote>
+<p>编程语言可以分为解释型语言和编译型语言，程序解释指的是程序代码在运行时，逐行翻译成较低层次的编程语言去执行；程序翻译指的是程序代码在编译阶段提前翻译成较低层次的编程语言逻辑，在运行时直接运行。</p>
+</blockquote>
+</li>
+<li>请你列举十种以上的编程语言，并分别分类他们属于什么类型的语言。<blockquote>
+<p>译型语言：C、C++、Go、OC，解释型语言：Php、Python、Javascript、Perl、Lua，翻译+解释型语言：Java、C#、Kotlin等。</p>
+</blockquote>
+</li>
+<li>你了解计算机的层次结构吗？今天的软件和硬件是怎么界定的。<blockquote>
+<p>计算机的层次结构划分是为了方便理解计算机的整一个体系，在不同书籍或领域会有不一样的划分，没有绝对的正确。今天的软件、硬件的划分以硬件电路为界限，从涉及硬件电路逻辑往下的都归为硬件，要注意软件和硬件的划分也是与时俱进的，今天的软件很可能明天就变成了硬件，比如以前编写硬件逻辑代码是软件，而随着高级编程语言的出现和成熟，现在编写硬件逻辑代码已经视为硬件部分了。</p>
+</blockquote>
+</li>
+<li>请你尝试说明高级语言、汇编语言和机器语言的区别和联系？<blockquote>
+<p>高级语言是方便程序员描述程序逻辑的编程语言，与人类语言接近；汇编语言时方便程序员描述硬件逻辑的编程语言，与底层硬件接近；机器语言时方便计算机理解和运行的编程语言，一般程序员无法理解。</p>
+</blockquote>
+</li>
+<li>CPU的速度一般使用什么做单位？它具有什么物理意义？<blockquote>
+<p>赫兹，是国际单位制中频率的单位，它是每秒中的周期性变动重复次数的计量。1Hz = 1/s，即在单位时间内完成振动的次数，单位为赫兹（1赫兹=1次/秒）。</p>
+</blockquote>
+</li>
+<li>网络的速度一般使用什么做单位？<blockquote>
+<p>bps，比特率是指每秒传送的比特(bit)数。单位为 bps(Bit Per Second)，比特率越高，每秒传送数据就越多。</p>
+</blockquote>
+</li>
+<li>20世纪80年代以前的计算机是不支持输入中文的，当时的计算机使用的是什么编码集？<blockquote>
+<p>ASCII编码集。</p>
+</blockquote>
+</li>
+<li>ASCII编码集占用多少个字节？<blockquote>
+<p>ASCII有128个字符，占用7个比特位，扩展ASCII编码机占用8个比特位，一个字节。</p>
+</blockquote>
+</li>
+<li>‘A’, ‘b’, ‘C’对应的ASCII十进制数值分别是多少？<blockquote>
+<p>65、98、67。</p>
+</blockquote>
+</li>
+<li>可以使用你熟悉的语言将 72、96、108转换为ASCII码吗？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">var c rune&#x3D;&#39;a&#39; </span><br><span class="line">var i int &#x3D;98</span><br><span class="line">i1:&#x3D;int(c)</span><br><span class="line">fmt.Println(&quot;&#39;a&#39; convert to&quot;,i1)</span><br><span class="line">c1:&#x3D;rune(i)</span><br><span class="line">fmt.Println(&quot;98 convert to&quot;,string(c1))</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;string to rune</span><br><span class="line">for _, char :&#x3D; range []rune(&quot;世界你好&quot;) &#123;</span><br><span class="line">    fmt.Println(string(char))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>你知道Unicode编码和UTF-8编码的区别和联系吗？<blockquote>
+<p>Unicode全名为：统一码、万国码，是计算机科学领域里的一项业界标准。Unicode标准有不同的编码实现，比如UTF-8、UTF-16、UTF-32，也即是可以有多种规则来实现Unicode标准，比如UTF-8使用的是不定长字节表示Unicode字符，在表示高位Unicode字符时可以自动扩展，UTF-32使用的是定长4个字节表示Unicode字符。</p>
+</blockquote>
+</li>
+<li>假设有10000个汉字，6000个日本字，3000个韩国字，1000个特殊字符，如果让你设计一套通用的编码集，请问每个字至少几个比特位？<blockquote>
+<p>10000+6000+3000+1000=20000个字符，最起码使用15个比特位，占2个字节。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="第3章-计算机组成原理之组成篇"><a href="#第3章-计算机组成原理之组成篇" class="headerlink" title="第3章 计算机组成原理之组成篇"></a>第3章 计算机组成原理之组成篇</h1><ul>
+<li>计算机的总线就像是计算机的“高速公路”，你是否可以说出总线主要的功能和分类？<blockquote>
+<p>总线可以分为：片内总线、系统总线，其中系统总线可以分为数据总线、地址总线、控制总线。</p>
+</blockquote>
+</li>
+<li>什么是总线标准，为什么需要总线标准，现在有哪些常见的总线标准？<blockquote>
+<p>总线标准是系统与各模块、模块与模块之间的一个互连的标准界面。总线标准有利于各模块高效使用总线。USB、PCIe等。</p>
+</blockquote>
+</li>
+<li>常说的“IO设备”，“I”、“O”分别是什么的缩写？<blockquote>
+<p>Input、Output，输入设备、输出设备。</p>
+</blockquote>
+</li>
+<li>常见的输入设备可以分为什么种类？<blockquote>
+<p>字符输入设备（键盘等）、图像输入设备（鼠标、数位板、扫描仪）。</p>
+</blockquote>
+</li>
+<li>常见的输出设备可以分为什么种类？<blockquote>
+<p>主要是图像输出设备（显示器），但在计算机远未普及的时候，显示器属于字符输出设备。</p>
+</blockquote>
+</li>
+<li>日常常见的计算机外设（显示器、键盘、鼠标、打印机），分别属于什么设备？<blockquote>
+<p>显示器、打印机属于输出设备，键盘、鼠标属于输入设备。</p>
+</blockquote>
+</li>
+<li>输入输出接口一般需要完成什么工作，可以把接口的线路分为什么线路？<blockquote>
+<p>数据线、状态线、命令线、地址线。</p>
+</blockquote>
+</li>
+<li>DMA的全称是什么？<blockquote>
+<p>DMA：Direct Memory Access，直接内存存取。</p>
+</blockquote>
+</li>
+<li>程序中断和DMA相比，有什么优劣？<blockquote>
+<p>程序中断和DMA都是计算机IO和低速设备的交互方式，程序中断方式实现简单，DMA方式效率更高。</p>
+</blockquote>
+</li>
+<li>你是否可以清晰的表述计算机存储器的层次结构？存储器的层次结构是为了解决什么问题的？<blockquote>
+<p>存储器的层次结构可以简单划分为：缓存-主存-辅存三个层次，缓存-主存主要是为了解决主存速度不够的问题；主存-辅存主要是为了解决主存容量不足的问题。</p>
+</blockquote>
+</li>
+<li>什么是局部性原理，局部性原理对计算机存储系统的设计产生了什么影响？<blockquote>
+<p>局部性原理是指CPU访问存储器时，无论是存取指令还是存取数据，所访问的存储单元都趋于聚集在一个较小的连续区域中。</p>
+</blockquote>
+</li>
+<li>计算机存储系统的每一个层次分别有什么特点？<blockquote>
+<p>缓存：速度快、位价高；主存：速度适中、位价适中；辅存：速度慢、位价低。</p>
+</blockquote>
+</li>
+<li>计算机的辅助存储器一般是指计算机硬盘，你了解计算机磁盘的物理结构吗？<blockquote>
+</blockquote>
+</li>
+<li>磁盘的调度算法有哪些？分别有什么特点？<blockquote>
+<p>先来先服务算法、最短寻道时间优先算法、扫描算法、循环扫描算法。</p>
+</blockquote>
+</li>
+<li>计算机的主存一般是指计算机内存，内存有什么特点？<blockquote>
+<p>容量比缓存大、比辅存小，访问速度比缓存慢，比辅存快，主存需要持续通电使用，停电时主存数据将会丢失。</p>
+</blockquote>
+</li>
+<li>请解释概念：主存、辅存、Cache、RAM、ROM？<blockquote>
+<p>主存：主存储器，即常说的计算机内存条，辅存：辅助存储器，即常说的磁盘、U盘、光盘、磁带等，Cache：高速缓存，即常说的L1、L2、L3缓存，CPU寄存器等，RAM：随机存取存储器（英语：Random Access Memory，缩写：RAM），ROM：只读存储器（Read Only Memory，缩写：ROM）。</p>
+</blockquote>
+</li>
+<li>什么是字？什么是字块？<blockquote>
+<p>字是指存放在一个存储单元中的二进制代码组合；字块是指存储在连续的存储单元中而被看作是一个单元的一组字。</p>
+</blockquote>
+</li>
+<li>计算机的高速缓存一般是指Cache，Cache一般位于计算机的什么硬件设备上？<blockquote>
+<p>在CPU上。</p>
+</blockquote>
+</li>
+<li>一般使用什么指标去评估主存-高速缓存的性能？<blockquote>
+<p>命中率。</p>
+</blockquote>
+</li>
+<li>命中率是怎么定义的？<br><img src="/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/5e3975ac093e3e8608760255.png" alt></li>
+<li>访问效率是怎么定义的？<br><img src="/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/5e3975b70947591b13630515.png" alt></li>
+<li>假设CPU执行某段程序共计访问Cache命中4800次，访问主存200次，已知Cache的存取周期是30ns，主存的存取周期是150ns，求Cache-主存系统的平均访问时间和效率，试问该系统的性能提高了多少？<blockquote>
+<p>平均访问时间：(480030+150200)/5000=34.8ns，命中率：4800/5000100%=96%，访问效率e：30/34.8100%=86.2%，性能提升：(150-34.8)/150*100%=76.8%。</p>
+</blockquote>
+</li>
+<li>请描述LFU、LRU、FIFO缓存置换算法的过程。<blockquote>
+</blockquote>
+</li>
+<li>计算机的指令一般由操作码和地址码组成，那么计算机指令可以分类为几种类型？<blockquote>
+<p>移位操作指令、数据传输指令、控制指令、算术逻辑操作指令。</p>
+</blockquote>
+</li>
+<li>对计算机指令数据的寻址有哪几种方式？<blockquote>
+<p>立即寻址、直接寻址、间接寻址。</p>
+</blockquote>
+</li>
+<li>计算机的运算器主要由什么组成？控制器呢？<blockquote>
+<p>控制器主要由：程序计数器、时序发生器、指令译码器、寄存器、总线组成。运算器主要由：数据缓冲器、ALU、寄存器、状态字寄存器、总线组成。</p>
+</blockquote>
+</li>
+<li>请简述计算机指令的执行过程。<blockquote>
+</blockquote>
+</li>
+</ul>
+<h1 id="第4章-计算机组成原理之计算篇"><a href="#第4章-计算机组成原理之计算篇" class="headerlink" title="第4章 计算机组成原理之计算篇"></a>第4章 计算机组成原理之计算篇</h1><ul>
+<li>除了十进制以外，这个世界上常见的还有什么进制？<blockquote>
+<p>二进制、八进制、十二进制、二十进制、六十进制。</p>
+</blockquote>
+</li>
+<li>二进制一般使用什么方法转换成十进制？<blockquote>
+<p>整数：按权展开法。</p>
+</blockquote>
+</li>
+<li>十进制一般使用什么方法转换成二进制？<blockquote>
+<p>整数：重复相除法，小数：重复相乘法。</p>
+</blockquote>
+</li>
+<li>计算机直接使用原码计算有什么缺点？<blockquote>
+<p>0有两种表示方法，减法运算复杂。</p>
+</blockquote>
+</li>
+<li>请计算12、124、1023、-1、-127的二进制原码。<blockquote>
+<p>12(0b1100)、124(0b1111100)、1023(0b1111111111)、-1(-0b1)、-127(-0b1111111)</p>
+</blockquote>
+</li>
+<li>计算机的补码解决了什么问题？<blockquote>
+<p>相比原码的运算过程（特别是减法），补码对于计算机而言运算更加简单。</p>
+</blockquote>
+</li>
+<li>请计算12、124、1023、-1、-127的补码，并将其使用32位定点表示法和32位浮点表示法(1位符号位、8位阶码、23位数值位)表示出来。<blockquote>
+</blockquote>
+</li>
+<li>你是否可以使用代码实现一个通用的计算器，可以将二进制数转换为十进制数，把十进制数转换为二进制数。<blockquote>
+</blockquote>
+</li>
+<li>计算机为了判断运算溢出使用了什么方法？<blockquote>
+</blockquote>
+</li>
+<li>什么是溢出？什么是上溢？什么是下溢？<blockquote>
+<p>双符号位判断法。当双符号位不一致表示溢出。</p>
+</blockquote>
+</li>
+<li>对于64位浮点型(double)，一般都是采用最高位为符号位，次高11位为指数位，其次52位为尾数，试求出double型所能表达的最大值和最小值。<blockquote>
+<p>溢出即计算机无法表示数值。上溢是指数值绝对值大于表示范围，下溢是指计算机无法提供有效精度表示数值。</p>
+</blockquote>
+</li>
+<li>浮点数相比定点数，有什么优势？有什么不足的地方。<blockquote>
+<p>浮点数可以表示更大的数据范围，但是运算耗时更长。</p>
+</blockquote>
+</li>
+<li>浮点数之间做加减法运算需要几个步骤？每个步骤都是必须的吗？为什么？<blockquote>
+<p>浮点数加减法需要经过以下几个步骤：对阶、尾数求和、尾数规格化、舍入、溢出判断。对阶是为了使得尾数可以进行运算，阶码不一致尾数运算无效，尾数规格化、舍入是为了正确存储结果，溢出判断是为了判断运算过程是否有误，如果溢出将会发出信号进行溢出处理。</p>
+</blockquote>
+</li>
+<li>x=0.1101^1001, y=0.1011^110，请计算x+y的值，x-y的值。<blockquote>
+<p>x+y=0.1110011^1001，x-y=0.1011101^1001。</p>
+</blockquote>
+</li>
+<li>x=0.1101^111, y=-0.1111^1101，请计算x+y的值，x-y的值。<blockquote>
+<p>x+y=-0.1110110011^1101，x-y=0.1111001101^1101。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="第6章-操作系统之基础篇"><a href="#第6章-操作系统之基础篇" class="headerlink" title="第6章 操作系统之基础篇"></a>第6章 操作系统之基础篇</h1><ul>
+<li>最早的计算机是没有操作系统的，操作系统的诞生解决了什么问题？<blockquote>
+<p>操作系统的出现解决了计算机操作难度大、计算机资源利用效率低等问题。</p>
+</blockquote>
+</li>
+<li>什么是批处理操作系统，它有什么特点？<blockquote>
+<p>批处理操作系统的特点是批量输入任务，有效提升计算机资源利用率。</p>
+</blockquote>
+</li>
+<li>什么是分时操作系统，它有什么特点？<blockquote>
+<p>分时操作系统是指分时复用计算机资源的操作系统，可以多个用户使用一台计算机，多个程序分时共享计算机资源。</p>
+</blockquote>
+</li>
+<li>操作系统主要功能是什么？<blockquote>
+<p>操作系统统一的管理着计算机资源；操作系统实现了对计算机资源的抽象；操作系统提供了用户与计算机之间操作的接口。</p>
+</blockquote>
+</li>
+<li>操作系统实现了对计算机资源的抽象，这里面的计算机资源主要包括什么？<blockquote>
+<p>存储资源 、网络资源、计算资源等。</p>
+</blockquote>
+</li>
+<li>操作系统提供了用户与计算机之间的接口，使得用户可以通过操作系统操作计算机，这个接口主要有几种形式？<blockquote>
+<p>系统调用、命令行、图形窗口、应用程序等。</p>
+</blockquote>
+</li>
+<li>什么是并行？什么是并发？并行和并发有什么区别和联系？<blockquote>
+<p>并行是指两个或多个事件可以在同一个时刻发生；并发是指两个或多个事件可以在同一个时间间隔发生。</p>
+</blockquote>
+</li>
+<li>操作系统的共享性对用户来说表现为什么？<blockquote>
+<p>操作系统的共享性表现为计算机资源可以同时提供给多个用户、多道程序使用。</p>
+</blockquote>
+</li>
+<li>对于计算机资源的共享，有哪两种形式？<blockquote>
+<p>互斥共享、同时共享。</p>
+</blockquote>
+</li>
+<li>什么是操作系统的虚拟性？<blockquote>
+<p>操作系统的虚拟性是指操作系统可以把计算机的物理实体转变为若干个逻辑实体以提供多个用户、多道程序使用。</p>
+</blockquote>
+</li>
+<li>什么是操作系统的异步性？它对我们的编程有什么实际意义？<blockquote>
+<p>操作系统的异步性是指是指进程以不可预知的速度向前推进。内存中的每个进程何时执行,何时暂停,以怎样的速度向前推进,每道程序总共需要多少时间才能完成等，都是不可预知的。</p>
+</blockquote>
+</li>
+<li>什么是操作系统的进程，操作系统的进程解决了什么问题？<blockquote>
+<p>进程是操作系统进行计算机资源分配和调度的基本单位。有了进程，用户的逻辑程序才能够在操作系统中独立、正常的执行；并使得计算机资源可以高效利用。</p>
+</blockquote>
+</li>
+<li>进程在计算机中是以什么形式存在的？<blockquote>
+<p>进程在计算机中表现为一片存储空间，包含进程状态、进程优先级、程序计数器、内存指针、上下文数据、IO状态信息等一系列数据。</p>
+</blockquote>
+</li>
+<li>PCB的全称是什么？它有什么作用？<blockquote>
+<p>PCB的全称是进程控制快(Process Control Block)，PCB是系统中存放进程的管理和控制信息的数据结构，有了PCB，操作系统才可以控制进程的运行。</p>
+</blockquote>
+</li>
+<li>什么是线程，线程与进程的关系和区别？<blockquote>
+<p>线程（thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。一条线程指的是进程中一个单一顺序的控制流，一个进程中可以并发多个线程，每条线程并行执行不同的任务。</p>
+</blockquote>
+</li>
+<li>进程的五状态主要是哪五状态？你了解进程的生命周期吗？<blockquote>
+<p>创建状态、就绪状态、阻塞状态、执行状态、终止状态。</p>
+</blockquote>
+</li>
+<li>什么是生产者-消费者问题，你能够编程实现吗？<blockquote>
+</blockquote>
+</li>
+<li>什么是哲学家进餐问题，你能够编程实现吗？<blockquote>
+</blockquote>
+</li>
+<li>进程间同步一般有哪些方法，线程间同步呢？<blockquote>
+<p>进程间同步的方法有：信号量、共享内存、消息队列、Unix域套接字等，线程间同步的方法有：互斥量、自旋锁、读写锁、条件变量的等方法。</p>
+</blockquote>
+</li>
+<li>对于Linux来说，什么是前台进程、什么是后台进程、什么是守护进程？<blockquote>
+<p>前台进程是指正在运行并且占用终端的进程；后台进程是指不占用终端的进程；守护进程是指一类特殊的后台进程，随系统引导而启动。</p>
+</blockquote>
+</li>
+<li>进程的调度算法可以分为两大类，抢占式调度和非抢占式调度，对于抢占式调度，主要有什么算法？<blockquote>
+<p>先来先服务调度算法、短进程优先调度算法、高优先权优先调度算法、时间片轮转调度算法。</p>
+</blockquote>
+</li>
+<li>死锁的危害重大，什么是死锁，死锁是怎么产生的？<blockquote>
+<p>死锁是指两个或两个以上的进程在执行过程中，由于竞争资源或者由于彼此通信而造成的一种阻塞的现象。</p>
+</blockquote>
+</li>
+<li>为了避免死锁，操作系统使用了什么算法？你了解这个算法的过程吗？<blockquote>
+<p>银行家算法。</p>
+</blockquote>
+</li>
+<li>什么是段？什么是页？什么是段页式存储管理？<blockquote>
+<p>段是指连续不等长的一片内存，页是指连续等长的一片内存，段页式存储管理是将用户程序分成若干个段，再把每个段分成若干个页的内存管理方式。</p>
+</blockquote>
+</li>
+<li>虚拟内存是什么？从根本上来说，虚拟内存解决了什么问题？<blockquote>
+<p>虚拟内存是计算机系统内存管理的一种技术。它使得应用程序认为它拥有连续的可用的内存（一个连续完整的地址空间），而实际上，它通常是被分隔成多个物理内存碎片，还有部分暂时存储在外部磁盘存储器上，在需要时进行数据交换。</p>
+</blockquote>
+</li>
+<li>虚拟内存有哪些的置换算法？<blockquote>
+<p>FIFO算法、LRU算法、LFU算法</p>
+</blockquote>
+</li>
+<li>请简述Buddy算法分配内存和回收内存的过程？<blockquote>
+</blockquote>
+</li>
+<li>在Buddy算法里面，什么是Buddy（伙伴）？<blockquote>
+<p>Buddy指的是两片内存连续、大小一样的内存片段。</p>
+</blockquote>
+</li>
+<li>在计算机里面，文件可以分为有结构文件和无结构文件，你可以列举常见的有结构文件和无结构文件吗？<blockquote>
+<p>有结构文件比如：Excel文件、Word文件、PDF文件、JPG文件等；无结构文件比如：exe文件、so文件、dll文件等。</p>
+</blockquote>
+</li>
+<li>当为文件分配辅存空间时，一般有什么分配方式？<blockquote>
+<p>连续分配、链接分配、索引分配。</p>
+</blockquote>
+</li>
+<li>FAT文件系统对应的是辅存的哪种空间分配方式？<blockquote>
+<p>链接分配方式。</p>
+</blockquote>
+</li>
+<li>ext文件系统对应的是辅存的哪种空间分配方式？<blockquote>
+<p>索引分配方式。</p>
+</blockquote>
+</li>
+<li>在辅存中，一般使用什么样的数据结构来管理存储空间？<blockquote>
+<p>位示图。</p>
+</blockquote>
+</li>
+<li>文件目录树有什么作用？<blockquote>
+<p>文件目录树使得任何一个文件或文件夹都有唯一的路径。</p>
+</blockquote>
+</li>
+<li>文件描述信息包含哪些数据？<blockquote>
+<p>文件标识符、文件类型、文件权限、文件长度、文件状态、索引节点等信息。</p>
+</blockquote>
+</li>
+<li>Linux文件有哪几种类型？<blockquote>
+<p>套接字文件、普通文件、目录文件、符号链接文件、设备文件、FIFO文件。</p>
+</blockquote>
+</li>
+<li>ext文件系统可以看做是由一个Boot Sector和若干个Block Group组成，你能简要的描述Block Group由什么组成吗？<blockquote>
+<p>一个Block Group由Super Block、Inode Bitmap、Block Bitmap、Inode Table、Data Block组成。</p>
+</blockquote>
+</li>
+<li>什么是文件的Inode，Inode存储了文件的什么信息？<blockquote>
+<p>每个文件或者文件夹都有一个Inode，Inode可以理解为是文件或文件夹的“身份证”，Inode存储着文件索引节点编号、文件类型、文件权限、文件物理地址的关键信息</p>
+</blockquote>
+</li>
+<li>什么是SPOOLing技术？计算机中常说的“脱机”是什么意思？<blockquote>
+<p>SPOOLing技术是关于慢速字符设备如何与计算机主机交换信息的一种技术，它利用高速共享设备将低速的独享设备模拟为高速的共享设备，使得逻辑上系统为每一个用户都分配了一台独立的高速独享设备。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="第9章-计算机网络之概述篇"><a href="#第9章-计算机网络之概述篇" class="headerlink" title="第9章 计算机网络之概述篇"></a>第9章 计算机网络之概述篇</h1><ul>
+<li>计算机网络的七层模型从顶往下分别是什么？请按顺序列举出来。<blockquote>
+<p>应用层、表示层、会话层、传输层、网络层、数据链路层、物理层。</p>
+</blockquote>
+</li>
+<li>现在开发者更喜欢使用TCP/IP四层模型来划分计算机网络，为什么TCP/IP四层模型会取代OSI七层模型被广泛使用？<blockquote>
+</blockquote>
+</li>
+<li>ARP协议、RARP协议属于计算机网络的哪一个层次？<blockquote>
+<p>数据链路层。</p>
+</blockquote>
+</li>
+<li>IP协议、ICMP协议属于计算机网络的哪一个层次？<blockquote>
+<p>网络层。</p>
+</blockquote>
+</li>
+<li>传输层最重要的两个协议是什么？<blockquote>
+<p>TCP协议、UDP协议。</p>
+</blockquote>
+</li>
+<li>常见的应用层协议有HTTP协议、FTP协议等，你还能列举一些常见的应用层协议吗？<blockquote>
+<p>HTTP、FTP、SMTP、DNS、POP3、Telnet、TFTP、DHCP等。</p>
+</blockquote>
+</li>
+<li>路由器工作在计算机网络的哪几个层次？<blockquote>
+<p>物理层、数据链路层、网络层。</p>
+</blockquote>
+</li>
+<li>现代网络设备互联的两种模式分别是什么？他们有什么特点？<blockquote>
+<p>客户-服务端模式、对等连接模式。客户-服务端模式由服务端提供网络服务，客户端使用服务，常常表现为一个服务端，多个客户端的连接模式。对等连接模式不分客户端和服务端，只要两个主机都运行了对等连接软件（P2P软件），它们就可以进行平等的、对等连接通信。</p>
+</blockquote>
+</li>
+<li>时延是判断计算机网络质量的重要标准，网络时延由哪几个部分组成？<blockquote>
+<p>网络时延可以划分成发送时延、传播时延、排队时延、处理时延几个部分。</p>
+</blockquote>
+</li>
+<li>物理层主要的作用是什么？<blockquote>
+<p>物理层主要的作用是连接不同的网络设备并在网络设备之间传输比特流。</p>
+</blockquote>
+</li>
+<li>请列举物理层常见的传输介质。<blockquote>
+<p>有线传输（铜线、光纤），无线传输。</p>
+</blockquote>
+</li>
+<li>什么是信道，什么是单工信道、半双工信道、全双工信道？<blockquote>
+<p>什么是信道，什么是单工信道、半双工信道、全双工信道？信道是往一个方向传送信息的媒体，单工信道指的是只能发送或者接收的信道，半双工信道指的是双方都能发送和接收信息但是不能同时发送或同时接收的信道，全双工信道指的是双方可以自由发送和接收信息的信道。</p>
+</blockquote>
+</li>
+<li>数据链路层的三个重要功能分别是什么？<blockquote>
+<p>封装成帧、透明传输、差错检测。</p>
+</blockquote>
+</li>
+<li>物理层只负责比特流的传输，这些数据在数据链路层称为什么？<blockquote>
+<p>数据帧。</p>
+</blockquote>
+</li>
+<li>为了界定区分一个单独的数据帧，数据链路层通常会做什么操作？<blockquote>
+<p>在数据的头部和尾部加入特殊比特位。</p>
+</blockquote>
+</li>
+<li>假设有数据00100101需要传输，目标机器接收到的数据为10100100，请问使用奇偶校验码是否可以检测出错误？<blockquote>
+<p>不能，因为奇偶校验位只能检测单个比特位出现的错误。</p>
+</blockquote>
+</li>
+<li>假设有数据1101011011需要传输，采用CRC的生成多项式为P(X)=X^4+X+1，请计算添加了CRC校验码之后的数据。<blockquote>
+<p>多项式位串为：10011，模二除法得到余数1110，所以得到结果11010110111110。</p>
+</blockquote>
+</li>
+<li>什么是MAC地址？如何查看本机的MAC地址？MAC地址有什么作用？<blockquote>
+<p>MAC地址也称为物理地址、硬件地址，通过在windows系统下输入命令ipconfig可以查看网络设备的MAC地址，MAC地址使用48个比特位标记一个物理设备。</p>
+</blockquote>
+</li>
+<li>请简述以太网的工作过程。MAC地址在其中起到了什么作用？<blockquote>
+<p>以太网协议通过MAC地址和硬件接口的映射关系了解到通过具体哪个接口把数据发送给下一跳。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="第10章-计算机网络之网络层篇"><a href="#第10章-计算机网络之网络层篇" class="headerlink" title="第10章 计算机网络之网络层篇"></a>第10章 计算机网络之网络层篇</h1><ul>
+<li>什么是IP地址，IP地址有什么特征？IP地址和MAC地址有什么区别和联系？<blockquote>
+<p>IP地址是唯一标记互联网中计算机的标识，IP地址共占用4个字节，使用点分十进制表示。IP地址和MAC地址都是一种标识，IP地址标记网络中的计算机，MAC地址标记网络硬件设备。</p>
+</blockquote>
+</li>
+<li>IP报文由IP头部和IP数据两个部分组成，IP头部一般占用多少个字节？<blockquote>
+<p>IP头部一般占用20个字节。</p>
+</blockquote>
+</li>
+<li>请简述IP头部包含哪些数据？<blockquote>
+</blockquote>
+</li>
+<li>IP头部的TTL数据有什么作用？<blockquote>
+<p>TTL占用一个字节，TTL表示IP数据包在网络中的寿命，当TTL为0时，网络设备将丢弃这个报文。</p>
+</blockquote>
+</li>
+<li>网络层是怎么界定区分一个IP报文的？<blockquote>
+<p>IP协议头部有个字段为报文总长度，占用16个比特位，网络层根据这个字段划分报文。</p>
+</blockquote>
+</li>
+<li>路由表是网络层重要的数据结构，路由表有什么作用？<blockquote>
+<p>路由表存储着目的地址和下一跳地址的映射关系，路由表是网络层可以正常工作的重要数据结构。</p>
+</blockquote>
+</li>
+<li>ARP协议有什么作用？如何清理本机的ARP缓存？<blockquote>
+<p>ARP协议全称是地址解析协议，即ARP（Address Resolution Protocol）。ARP协议可以将IP地址翻译成物理地址。在Windows系统下使用arp -d命令就可以清楚arp缓存。</p>
+</blockquote>
+</li>
+<li>ARP协议的设计有一定的缺陷，请通过搜索引擎自行搜索了解利用ARP漏洞攻击的方法。<blockquote>
+</blockquote>
+</li>
+<li>IP地址一共4Bytes，32bits，理论上可以表示多少个IP？<blockquote>
+<p>理论上可以表示2的32次方个IP。</p>
+</blockquote>
+</li>
+<li>为了科学的使用IP地址，早期的科学家把IP地址划分为A、B、C三类IP地址，这些IP地址有什么特点？<blockquote>
+<p>IP地址可以分为网络号和主机号两个部分，A类地址网络号为8位，主机号为24位；B类地址网络号为16位，主机号为16位；C类地址网络号为24位，主机号为8位。</p>
+</blockquote>
+</li>
+<li>A类地址理论上可以有多少个子网，每个子网理论上有多少个主机号？<blockquote>
+<p>A类地址网络号为8位，其首位为0，故理论上可以表示2的7次方个网络，主机号为24位，每个子网可以有2的24次方个主机</p>
+</blockquote>
+</li>
+<li>请列举特殊的网络号和特殊的主机号。<blockquote>
+<p>主机号全0、主机号全1的IP地址为特殊的主机号，不可分配。</p>
+</blockquote>
+</li>
+<li>如何计算一个IP的网络号是什么？<blockquote>
+<p>使用子网掩码和IP地址进行按位与运算就可得到IP地址对应的网络号。</p>
+</blockquote>
+</li>
+<li>一个网络的掩码是255.255.255.248，请问这个网络可以连接多少台主机？<blockquote>
+<p>这个网络的主机号只有3位，最多可以表示8个主机，减去全0、全1两个特殊主机号，一共可以连接6台主机。</p>
+</blockquote>
+</li>
+<li>网络地址转换技术(NAT)解决了什么问题？<blockquote>
+<p>NAT技术解决网络IP地址不够用的问题。</p>
+</blockquote>
+</li>
+<li>NAT技术的实现原理。<blockquote>
+<p>NAT技术在网络设备中通过维护一个映射表，通过映射表可以将外部地址转换为内部地址。</p>
+</blockquote>
+</li>
+<li>ICMP报文和IP报文一样，也是由头部和数据两个部分组成，请简述ICMP报文的头部字段。<blockquote>
+<p>ICMP报文的头部字段由三个部分组成，分别是8位类型、8位代码和16位校验和。</p>
+</blockquote>
+</li>
+<li>ICMP报文和IP报文由什么关系？ICMP报文是怎么样传输的。<blockquote>
+<p>ICMP协议和IP协议虽然同为网络层协议，但是ICMP是不能单独传输的，ICMP报文需要传输时作为IP报文的数据进行传输。</p>
+</blockquote>
+</li>
+<li>常见的利用ICMP协议的计算机应用有ping和traceroute，请简述这两个应用的功能，以及这两个应用是怎么利用ICMP协议完成工作的。<blockquote>
+</blockquote>
+</li>
+<li>网络层路由可以抽象成一个图算法问题，按照网络的大小可以分为内部网关协议和外部网关协议，请列举与网络路由相关的算法。<blockquote>
+<p>距离矢量算法、Dijkstra（迪杰斯特拉）算法。</p>
+</blockquote>
+</li>
+<li>请简述RIP协议的过程。<blockquote>
+</blockquote>
+</li>
+<li>RIP协议有什么优点和缺点？<blockquote>
+<p>RIP协议具备着实现简单、开销小等优点，但是RIP协议本身的缺陷限制了网络的规模，并且在RIP协议中坏消息传的慢，更新收敛时间长， 这也使得RIP协议整体性能较差。</p>
+</blockquote>
+</li>
+<li>请简述OSPF协议的过程，OSPF协议中起到重要的算法是什么算法？<blockquote>
+<p>Dijkstra（迪杰斯特拉）算法。</p>
+</blockquote>
+</li>
+<li>OSPF协议有什么优点和缺点？<blockquote>
+<p>OSPF协议解决了RIP协议的问题，对整个网络有一定的“全局观”，但是OSPF协议本身较为复杂，实现开销较大。</p>
+</blockquote>
+</li>
+<li>网络层有了RIP协议和OSPF协议，为什么还需要BGP协议？BGP协议解决了什么问题？<blockquote>
+<p>BGP协议全称为边际网关协议(Border Gateway Protocol)，BGP协议是因为计算机网络中人为因素的复杂性而提出的，在实际网络环境中，数据的传输还受政治、安全等方面的影响。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="第11章-计算机网络之传输层"><a href="#第11章-计算机网络之传输层" class="headerlink" title="第11章 计算机网络之传输层"></a>第11章 计算机网络之传输层</h1><ul>
+<li>传输层主要工作在什么地方？<blockquote>
+<p>传输层主要工作在终端设备（手机、计算机、笔记本、平板电脑等）上。</p>
+</blockquote>
+</li>
+<li>传输层最重要的两个协议是什么？<blockquote>
+<p>TCP协议和UDP协议。</p>
+</blockquote>
+</li>
+<li>端口是什么，端口有什么作用？端口在协议中一般占用几个字节？<blockquote>
+<p>端口是为了标记不同的使用网络的进程，端口使用16个比特为表示。</p>
+</blockquote>
+</li>
+<li>UDP协议的中文全称是什么？UDP协议有什么特点？请分点说明。<blockquote>
+<p>UDP全称是用户数据报协议(User Datagram Protocol)，UDP是一个非常简单的传输层协议，他不能保证可靠的交付数据。</p>
+</blockquote>
+</li>
+<li>UDP的报文和IP报文一样，也是由头部和数据两个部分组成，请绘制UDP头部的结构图。<blockquote>
+</blockquote>
+</li>
+<li>TCP协议的中文全称是什么？TCP协议有什么特点？请分点说明。<blockquote>
+<p>TCP全称是传输控制协议(Transmission Control Protocol)，TCp是面向连接的协议，TCP协议可以提供可靠的数据传输服务。</p>
+</blockquote>
+</li>
+<li>TCP的报文和UDP、IP报文一样，也是由头部和数据两个部分组成，请绘制TCP头部的结构图。<blockquote>
+</blockquote>
+</li>
+<li>TCP报文头部的序号和确认号都占据4个字节，序号有什么用？确认号呢？<blockquote>
+<p>序号用于传输数据的编号，在TCP报文中一个字节一个序号。确认号表示期待收到的数据的首字节序号。</p>
+</blockquote>
+</li>
+<li>TCP报文头部的数据偏移字段有什么用？他和TCP报文的结构有什么关系？<blockquote>
+<p>数据偏移字段表示传输数据偏移TCP首部的距离，如果TCP报文中包含可选数据，则数据偏移字段起作用。</p>
+</blockquote>
+</li>
+<li>TCP报文头部的标记占用6个比特位，每个比特位的值可以为1或0，他们分别有什么意义？<blockquote>
+<p>6个比特位分别是URG、ACK、PSH、RST、SYN、FIN，URG表示紧急报文、ACK表示确认报文、PSH表示该报文尽快交付应用层、RST表示重置报文，重新建立连接、SYN表示连接请求报文、FIN表示释放连接报文。</p>
+</blockquote>
+</li>
+<li>TCP报文头部的窗口占用2个字节，窗口字段有什么作用？<blockquote>
+<p>窗口指明允许对方发送的数据量，用于控制TCP连接中数据传输的速率。</p>
+</blockquote>
+</li>
+<li>TCP协议一个重要的特点是可靠传输，可靠传输是怎么实现的？请简要描述可靠传输的基本原理。<blockquote>
+<p>可靠传输依赖于超时重传，即接收方需要发送确认消息给发送方，如果一定时间内发送方没有收到确认消息，则认为消息没有到达接收方，重新发送数据。</p>
+</blockquote>
+</li>
+<li>TCP协议的流量控制和TCP报文头部的什么字段有关系？流量控制具体是怎么工作的？请简要描述流量控制的主要过程。<blockquote>
+<p>TCP的流量控制和TCP头部的窗口字段有关系，流量控制根据TCP报文中窗口的大小来进行数据的传输，当窗口较大时，增加数据发送速度，当窗口较小时，降低数据发送速度。</p>
+</blockquote>
+</li>
+<li>TCP协议具备拥塞控制的功能，拥塞控制和流量控制有什么区别？拥塞控制是怎么实现的？<blockquote>
+<p>拥塞控制和流量控制是不一样的，流量控制强调TCP连接双方的发送-接收速率，拥塞控制强调网络环境的状态，TCP连接的发送方可以感知网络环境的状态并做出反应。发送端使用慢启动算法、拥塞避免算法、快重传算法、快恢复方法。</p>
+</blockquote>
+</li>
+<li>TCP协议的三次握手是非常重要的知识点，TCP协议的三次握手和TCP报文头部的哪些字段有关系？<blockquote>
+<p>序号、确认号、TCP标记ACK、SYN、FIN。</p>
+</blockquote>
+</li>
+<li>请简述TCP协议三次握手的过程。<blockquote>
+</blockquote>
+</li>
+<li>TCP协议的三次握手是TCP建立可靠通信的基础，请问为什么TCP连接建立的过程叫做三次握手，请陈述三次握手的必要性，两次握手为什么不行？<blockquote>
+<p>两次握手不能保证连接正确建立，TCP被连接的一端有可能响应失效的请求报文而无法确认。</p>
+</blockquote>
+</li>
+<li>TCP协议的四次挥手是非常重要的知识点，TCP协议的四次挥手和TCP报文头部的哪些字段有关系？<blockquote>
+<p>序号、确认号、TCP标记ACK、SYN、FIN。</p>
+</blockquote>
+</li>
+<li>请简述TCP协议四次挥手的过程，并说明清楚每一次挥手后，双方进入的状态。<blockquote>
+</blockquote>
+</li>
+<li>TCP连接释放的过程中有一个重要概念叫做2MSL，什么是2MSL，它有什么作用？<blockquote>
+<p>MSL指的是最长报文段寿命(Max Segment Lifetime)，2MSL保证ACK报文可以正确到达对方。</p>
+</blockquote>
+</li>
+<li>TCP协议有四个重要的定时器，分别是什么定时器？请简述这些定时器的作用。<blockquote>
+<p>超时定时器、坚持定时器、时间等待计时器、保活计时器。</p>
+</blockquote>
+</li>
+<li>什么是套接字？你了解套接字的编程吗？请使用套接字实现一个简单的C/S通信工具。<blockquote>
+<p>套接字是TCP连接双方的IP:端口对</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="第12章-计算机网络之应用层篇"><a href="#第12章-计算机网络之应用层篇" class="headerlink" title="第12章 计算机网络之应用层篇"></a>第12章 计算机网络之应用层篇</h1><ul>
+<li>应用层相对于其他层，是面向用户的一层，应用层协议主要解决了什么问题？<blockquote>
+<p>应用层是七层OSI模型的第七层。应用层直接和应用程序接口并提供常见的网络应用服务。</p>
+</blockquote>
+</li>
+<li>请列举5个以上的应用层协议。<blockquote>
+<p>HTTP、FTP、SMTP、DNS、POP3、Telnet、TFTP、DHCP等。</p>
+</blockquote>
+</li>
+<li>什么是域名？为什么需要域名？<blockquote>
+<p>域名是指由一串用点分隔的名字组成的网络上上某一台计算机或计算机组的名称。域名主要是为了解决IP地址难以记忆而发明的。</p>
+</blockquote>
+</li>
+<li>把域名解析成IP地址的服务叫做什么服务？它有什么特点。<blockquote>
+<p>把域名解析成IP地址的服务叫做DNS服务，DNS服务呈树状结构。</p>
+</blockquote>
+</li>
+<li>DHCP协议是应用层中重要的一个协议，DHCP协议主要干了什么工作？<blockquote>
+<p>DHCP（动态主机配置协议）是一个局域网的网络协议。指的是由服务器控制一段IP地址范围，客户机登录服务器时就可以自动获得服务器分配的IP地址和子网掩码。</p>
+</blockquote>
+</li>
+<li>HTTP协议是广泛使用的一个协议，也是最重要的应用层协议之一，HTTP协议解决了什么问题？<blockquote>
+<p>HTTP（超文本传输协议）是一个基于C/S架构进行通信的网络协议，HTTP协议是互联网数据通信的基础。HTTP规范了客户端请求的格式和服务端回应的格式。</p>
+</blockquote>
+</li>
+<li>HTTP地址有什么特点，一个完整的HTTP地址由哪几个部分组成？<blockquote>
+<p>HTTP协议的地址由以下几个部分组成：http(s)://&lt;主机&gt;:&lt;端口&gt;/&lt;路径&gt;</p>
+</blockquote>
+</li>
+<li>HTTP协议中常用的HTTP请求方法有什么？他们分别表示什么意思。<blockquote>
+<p>GET、POST、DELETE、UPDATE等，GET方法通常表示从服务端获取数据、POST方法通常表示往服务端提交数据、DELETE方法通常表示删除服务端资源、UPDATE方法通常表示更新服务端资源</p>
+</blockquote>
+</li>
+<li>HTTP服务的状态码由3位十进制数组成，主要可以分成几类呢？<blockquote>
+<p><img src="/2020/06/04/linux/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86+%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80+%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98/5e3977c5095f8b7910140335.png" alt></p>
+</blockquote>
+</li>
+<li>一个浏览器在请求服务器时，拿到了404状态码的回应，请问是什么意思？<blockquote>
+<p>404状态码为客户端错误状态码，表示客户端所请求的资源不存在。</p>
+</blockquote>
+</li>
+<li>一个浏览器在请求服务器时，拿到了502状态码的回应，请问是什么意思？<blockquote>
+<p>502状态码为服务端错误状态码，表示服务端网关网络错误。</p>
+</blockquote>
+</li>
+<li>请简述HTTP请求报文的主要结构。<blockquote>
+<p>HTTP请求报文由以下几个部分组成：请求行、请求头、请求内容三个部分组成，请求行包含请求方法、请求地址和HTTP协议版本。</p>
+</blockquote>
+</li>
+<li>请简述HTTP应答报文的主要结构。<blockquote>
+<p>HTTP应答报文由以下几个部分组成：应答行、应答头、应答内容三个部分组成，应答行包含HTTP协议版本、状态码、状态说明。</p>
+</blockquote>
+</li>
+<li>什么是缓存，什么是Web缓存？<blockquote>
+<p>缓存是指比一般存储更快的存储。Web缓存是为了加快客户端访问速度而设计的缓存，主要存储Web数据，当缓存命中时，可以有效加快客户端访问速度。</p>
+</blockquote>
+</li>
+<li>Web代理在生成环境中应用非常广泛，一般使用Nginx来完成代理，请问什么是Web代理，Web代理有什么作用？<blockquote>
+<p>Nginx可以提供反向代理服务，代理指的是在客户端和服务端之间设置代理中间人，Web代理可以提供隐匿源站IP、屏蔽后端网络拓扑，负载均衡等功能。</p>
+</blockquote>
+</li>
+<li>什么是CDN，什么是爬虫？搜索引擎的本质是什么？<blockquote>
+<p>CDN全称是Content Delivery Network，即内容分发网络。爬虫指的是按照一定规则在互联网中自动抓取信息的程序，搜索引擎本质就是爬虫。</p>
+</blockquote>
+</li>
+<li>HTTPS是安全的HTTP协议，HTTPS应用了密码学的知识，其中就包括对称加密和非对称加密，请问什么是对称加密，什么是非对称加密？<blockquote>
+<p>对称加密指的是加密和解密使用同样的密钥，非对称加密指的是加密和解密使用不一样的密钥。</p>
+</blockquote>
+</li>
+<li>SSL为现代Web应用的安全作出了重要的贡献，请简述SSL握手的主要过程。<blockquote>
+</blockquote>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux%E4%B9%A0%E9%A2%98/" rel="tag"># linux习题</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/28/go/grpc%E7%AC%94%E8%AE%B0/" rel="prev" title="go/grpc笔记">
+      <i class="fa fa-chevron-left"></i> go/grpc笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/11/http/Http%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97/" rel="next" title="http/Http权威指南">
+      http/Http权威指南 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#第二章-计算机主城原理之概述篇"><span class="nav-number">1.</span> <span class="nav-text">第二章 计算机主城原理之概述篇</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第3章-计算机组成原理之组成篇"><span class="nav-number">2.</span> <span class="nav-text">第3章 计算机组成原理之组成篇</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第4章-计算机组成原理之计算篇"><span class="nav-number">3.</span> <span class="nav-text">第4章 计算机组成原理之计算篇</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第6章-操作系统之基础篇"><span class="nav-number">4.</span> <span class="nav-text">第6章 操作系统之基础篇</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第9章-计算机网络之概述篇"><span class="nav-number">5.</span> <span class="nav-text">第9章 计算机网络之概述篇</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第10章-计算机网络之网络层篇"><span class="nav-number">6.</span> <span class="nav-text">第10章 计算机网络之网络层篇</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第11章-计算机网络之传输层"><span class="nav-number">7.</span> <span class="nav-text">第11章 计算机网络之传输层</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第12章-计算机网络之应用层篇"><span class="nav-number">8.</span> <span class="nav-text">第12章 计算机网络之应用层篇</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chen Yu"
+      src="/images/head.jpeg">
+  <p class="site-author-name" itemprop="name">Chen Yu</p>
+  <div class="site-description" itemprop="description">自律给我自由</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+<div>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv" style='display:none'>
+    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    <span class="post-meta-divider">|</span>
+</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+    有<span id="busuanzi_value_site_uv"></span>人看过我的博客啦
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
