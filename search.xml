@@ -1,6 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>go/工作中遇到的问题</title>
+    <url>/2020/12/01/go/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>此文章记录，go开发中遇到的一些问题</p>
+<a id="more"></a>
+
+<h2 id="go-httpClient-出现大量ESTABLISHED-TIME-WAIT"><a href="#go-httpClient-出现大量ESTABLISHED-TIME-WAIT" class="headerlink" title="go httpClient 出现大量ESTABLISHED ,TIME_WAIT"></a>go httpClient 出现大量ESTABLISHED ,TIME_WAIT</h2><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>用户通过浏览器访问 go web 服务器A, A会通过httpClient 向服务器B发起http请求；</p>
+<p>服务器A 工作一段时间后总会报连接不上服务器B，服务器B重启后，一切正常；</p>
+<h3 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h3><p>由于go httpClient默认使用的是长连接，请求服务器B后，连接并未被释放掉，导致服务器A经过一段时间后socket被占满。</p>
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><p>golang http客户端在发送http请求的时候，需要头信息中声明本次使用的是http短链接。 </p>
+<h3 id="代码段"><a href="#代码段" class="headerlink" title="代码段"></a>代码段</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tr :&#x3D; &amp;http.Transport&#123;</span><br><span class="line">    DisableKeepAlives: true,&#x2F;&#x2F;禁用长连接</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="beegoOrm-或者gorm-如何向数据库中插入nil"><a href="#beegoOrm-或者gorm-如何向数据库中插入nil" class="headerlink" title="beegoOrm 或者gorm 如何向数据库中插入nil"></a>beegoOrm 或者gorm 如何向数据库中插入nil</h2><p>默认情况下 orm 会将字段零值插入数据库</p>
+<h3 id="解决办法-1"><a href="#解决办法-1" class="headerlink" title="解决办法"></a>解决办法</h3><p>定义字段为指针类型</p>
+<h2 id="go-常用工具"><a href="#go-常用工具" class="headerlink" title="go 常用工具"></a>go 常用工具</h2><ul>
+<li>go vet main.go  打印检查</li>
+<li>go run -race main.go  竞态检查</li>
+<li>go build -ldflags “-s -w” -a -v -o main -trimpath main.go  减小执行程序大小， 原理，剥离调试代码 <blockquote>
+<p>终极压缩： upx -9 main.go</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ubuntu 下面 安装upx-ucl :sudo apt install upx-ucl</span><br><span class="line">压缩 ： upx-ucl -9 main.go</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li>go编译exe程序<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">CGO_ENABLED&#x3D;0 GOOS&#x3D;windows GOARCH&#x3D;amd64 go build  -ldflags &quot;-s -w&quot; -a -v -o createtest.exe -trimpath main.go </span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">## linux 交叉编译  windows</span><br><span class="line">1.需要安装gcc-mingw-w64</span><br></pre></td></tr></table></figure>
+sudo apt-get install gcc-mingw-w64<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">2.执行编译</span><br></pre></td></tr></table></figure>
+#带黑窗口<br>CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build</li>
+</ul>
+<p>#不带黑窗口<br>CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build -ldflags=”-H windowsgui” </p>
+<pre><code></code></pre>]]></content>
+      <categories>
+        <category>go</category>
+      </categories>
+      <tags>
+        <tag>疑难杂症</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>android/ubuntu安装AndroidSDK和NDK</title>
+    <url>/2020/11/30/android/ubuntu%E5%AE%89%E8%A3%85AndroidSDK%E5%92%8CNDK/</url>
+    <content><![CDATA[<h1 id="安装java"><a href="#安装java" class="headerlink" title="安装java"></a>安装java</h1><p>参考:<br><a href="https://medium.com/@barcelos.ds/install-openjdk-11-lts-in-the-ubuntu-20-04-lts-2c06f17c990" target="_blank" rel="noopener">https://medium.com/@barcelos.ds/install-openjdk-11-lts-in-the-ubuntu-20-04-lts-2c06f17c990</a></p>
+<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p><a href="https://adoptopenjdk.net" target="_blank" rel="noopener">https://adoptopenjdk.net</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo mkdir ~&#x2F;DevTools</span><br><span class="line">sudo mkdir ~&#x2F;DevTools&#x2F;JDK</span><br><span class="line">sudo tar -zxvf ~&#x2F;下载&#x2F;OpenJDK11U-jdk***tar.gz -C ~&#x2F;DevTools&#x2F;JDK&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置JAVA-HOME环境变量"><a href="#设置JAVA-HOME环境变量" class="headerlink" title="设置JAVA_HOME环境变量"></a>设置JAVA_HOME环境变量</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo  vim ~&#x2F;.profile</span><br><span class="line"></span><br><span class="line">DEV_TOOLS&#x3D;&quot;&#x2F;home&#x2F;$USER&#x2F;DevTools&quot;</span><br><span class="line">JAVA_HOME&#x3D;&quot;$DEV_TOOLS&#x2F;JDK&#x2F;jdk-11.0.7+10&quot;</span><br><span class="line">export JAVA_HOME</span><br><span class="line">PATH&#x3D;&quot;$JAVA_HOME&#x2F;bin:$PATH&quot;</span><br><span class="line"></span><br><span class="line">source ~&#x2F;.profile</span><br></pre></td></tr></table></figure>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#JRE</span><br><span class="line">java --version</span><br><span class="line"></span><br><span class="line">#JDK</span><br><span class="line">javac --version</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="安装Android-SDK"><a href="#安装Android-SDK" class="headerlink" title="安装Android SDK"></a>安装Android SDK</h1><p>参考:<br><a href="https://medium.com/@barcelos.ds/install-android-sdk-in-the-ubuntu-20-04-lts-without-android-studio-1b629924d6c5" target="_blank" rel="noopener">https://medium.com/@barcelos.ds/install-android-sdk-in-the-ubuntu-20-04-lts-without-android-studio-1b629924d6c5</a></p>
+<h2 id="下载命令行工具"><a href="#下载命令行工具" class="headerlink" title="下载命令行工具"></a>下载命令行工具</h2><p>网址：<a href="https://developer.android.com/studio" target="_blank" rel="noopener">https://developer.android.com/studio</a><br><img src="/2020/11/30/android/ubuntu%E5%AE%89%E8%A3%85AndroidSDK%E5%92%8CNDK/command-tools.png" alt></p>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo mkdir ~&#x2F;DevTools</span><br><span class="line">sudo mkdir -P ~&#x2F;DevTools&#x2F;Android&#x2F;cmdline-tools&#x2F;latest</span><br></pre></td></tr></table></figure>
+
+<h2 id="解压放至于-DevTools-Android-cmdline-tools-latest"><a href="#解压放至于-DevTools-Android-cmdline-tools-latest" class="headerlink" title="解压放至于  ~/DevTools/Android/cmdline-tools/latest"></a>解压放至于  ~/DevTools/Android/cmdline-tools/latest</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="设置ANDROID-HOME环境变量"><a href="#设置ANDROID-HOME环境变量" class="headerlink" title="设置ANDROID_HOME环境变量"></a>设置ANDROID_HOME环境变量</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo  vim ~&#x2F;.profile</span><br><span class="line"></span><br><span class="line">DEV_TOOLS&#x3D;&quot;&#x2F;home&#x2F;$USER&#x2F;DevTools&quot;</span><br><span class="line">JAVA_HOME&#x3D;&quot;$DEV_TOOLS&#x2F;JDK&#x2F;jdk-11.0.7+10&quot;</span><br><span class="line">ANDROID_HOME&#x3D;&quot;$DEV_TOOLS&#x2F;Android&quot;</span><br><span class="line">export JAVA_HOME</span><br><span class="line">export ANDROID_HOME</span><br><span class="line">PATH&#x3D;&quot;$JAVA_HOME&#x2F;bin:$ANDROID_HOME&#x2F;cmdline-tools&#x2F;latest&#x2F;bin:$ANDROID_HOME&#x2F;platform-tools:$PATH&quot;</span><br><span class="line"></span><br><span class="line">source ~&#x2F;.profile</span><br></pre></td></tr></table></figure>
+
+<h2 id="Install-Platform-for-Android-29"><a href="#Install-Platform-for-Android-29" class="headerlink" title="Install Platform for Android 29"></a>Install Platform for Android 29</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sdkmanager &quot;platform-tools&quot; &quot;platforms;android-29&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Install-Build-Tools-for-Android-29"><a href="#Install-Build-Tools-for-Android-29" class="headerlink" title="Install Build Tools for Android 29"></a>Install Build Tools for Android 29</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sdkmanager &quot;build-tools&quot; &quot;build-tools;29.0.3&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Accept-Android-Licenses"><a href="#Accept-Android-Licenses" class="headerlink" title="Accept Android Licenses"></a>Accept Android Licenses</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sdkmanager --licenses</span><br></pre></td></tr></table></figure>
+
+<h2 id="Update-Android-Packages-when-necessary"><a href="#Update-Android-Packages-when-necessary" class="headerlink" title="Update Android Packages when necessary:"></a>Update Android Packages when necessary:</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sdkmanager --update</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sdkmanager --version</span><br><span class="line">sdkmanager --list</span><br></pre></td></tr></table></figure>
+
+<h1 id="安装NDK"><a href="#安装NDK" class="headerlink" title="安装NDK"></a>安装NDK</h1><h2 id="官网下载"><a href="#官网下载" class="headerlink" title="官网下载"></a>官网下载</h2><p><a href="https://developer.android.com/ndk/downloads/index.html" target="_blank" rel="noopener">https://developer.android.com/ndk/downloads/index.html</a></p>
+<h2 id="解压到-DevTools-Android"><a href="#解压到-DevTools-Android" class="headerlink" title="解压到 ~/DevTools/Android"></a>解压到 ~/DevTools/Android</h2><h2 id="设置ANDROID-NDK"><a href="#设置ANDROID-NDK" class="headerlink" title="设置ANDROID_NDK"></a>设置ANDROID_NDK</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo  vim ~&#x2F;.profile</span><br><span class="line"></span><br><span class="line">DEV_TOOLS&#x3D;&quot;&#x2F;home&#x2F;$USER&#x2F;DevTools&quot;</span><br><span class="line">JAVA_HOME&#x3D;&quot;$DEV_TOOLS&#x2F;JDK&#x2F;jdk-11.0.9.1+1&quot;</span><br><span class="line">ANDROID_HOME&#x3D;&quot;$DEV_TOOLS&#x2F;Android&quot;</span><br><span class="line"></span><br><span class="line">export JAVA_HOME</span><br><span class="line">export ANDROID_HOME</span><br><span class="line">export ANDROID_NDK&#x3D;$ANDROID_HOME&#x2F;android-ndk-r21b</span><br><span class="line"></span><br><span class="line">export GOPATH&#x3D;&#x2F;home&#x2F;yu&#x2F;go</span><br><span class="line">export PATH&#x3D;$PATH:&#x2F;usr&#x2F;local&#x2F;go&#x2F;bin:$GOPATH&#x2F;bin:$JAVA_HOME&#x2F;bin:$ANDROID_HOME&#x2F;cmdline-tools&#x2F;latest&#x2F;bin:$ANDROID_HOME&#x2F;platform-tools:$ANDROID_NDK</span><br><span class="line">export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.cn</span><br><span class="line"></span><br><span class="line">source ~&#x2F;.profile</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试-2"><a href="#测试-2" class="headerlink" title="测试"></a>测试</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ndk-build -v</span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
+  <entry>
+    <title>docker/mysql</title>
+    <url>/2020/11/12/docker/mysql/</url>
+    <content><![CDATA[<h1 id="docker-安装mysql"><a href="#docker-安装mysql" class="headerlink" title="docker 安装mysql"></a>docker 安装mysql</h1><h2 id="单机版"><a href="#单机版" class="headerlink" title="单机版"></a>单机版</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -it -d -p 3306:3306 --name docker_mysql -e MYSQL_ROOT_PASSWORD&#x3D;123456  --restart&#x3D;always  mysql</span><br></pre></td></tr></table></figure>
+
+<p>docker run -it -d -p 33063:3306 –name mysql5.6.47-1 -e MYSQL_ROOT_PASSWORD=123456  –restart=always  mysql:5.6.47 </p>
+]]></content>
+      <categories>
+        <category>docker</category>
+      </categories>
+      <tags>
+        <tag>docker-install-ware</tag>
+        <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker/zookeeper</title>
     <url>/2020/10/23/docker/zookeeper/</url>
     <content><![CDATA[<h1 id="docker-安装zookeeper"><a href="#docker-安装zookeeper" class="headerlink" title="docker 安装zookeeper"></a>docker 安装zookeeper</h1><h2 id="单机版"><a href="#单机版" class="headerlink" title="单机版"></a>单机版</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d -p 2181:2181 --name some-zookeeper --restart&#x3D;always zookeeper</span><br></pre></td></tr></table></figure>]]></content>
@@ -56,18 +139,6 @@
       <tags>
         <tag>docker-install-ware</tag>
         <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>docker/mysql</title>
-    <url>/2020/10/23/docker/mysql/</url>
-    <content><![CDATA[<h1 id="docker-安装mysql"><a href="#docker-安装mysql" class="headerlink" title="docker 安装mysql"></a>docker 安装mysql</h1><h2 id="单机版"><a href="#单机版" class="headerlink" title="单机版"></a>单机版</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -it -d -p 3306:3306 --name docker_mysql -e MYSQL_ROOT_PASSWORD&#x3D;123456  --restart&#x3D;always  mysql</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>docker</category>
-      </categories>
-      <tags>
-        <tag>docker-install-ware</tag>
-        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
@@ -3340,42 +3411,6 @@
       </tags>
   </entry>
   <entry>
-    <title>mysql/通过Docker安装配置MySQL主从节点</title>
-    <url>/2020/04/01/mysql/%E9%80%9A%E8%BF%87Docker%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEMySQL%E4%B8%BB%E4%BB%8E%E8%8A%82%E7%82%B9/</url>
-    <content><![CDATA[<h2 id="拉取最新版mysql镜像"><a href="#拉取最新版mysql镜像" class="headerlink" title="拉取最新版mysql镜像"></a>拉取最新版mysql镜像</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker pull mysql</span><br></pre></td></tr></table></figure>
-<h2 id="mysql主服务器"><a href="#mysql主服务器" class="headerlink" title="mysql主服务器"></a>mysql主服务器</h2><h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -p 3307:3306 --name mysql_master -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest</span><br></pre></td></tr></table></figure>
-<a id="more"></a>
-
-<h3 id="修改配置并添加slave用户"><a href="#修改配置并添加slave用户" class="headerlink" title="修改配置并添加slave用户"></a>修改配置并添加slave用户</h3><p>1.进入容器</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker exec -it d45457d26cad &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
-
-<p>2.修改配置    </p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt update &amp;&amp; apt install  vim -y</span><br><span class="line">vim /etc/mysql/my.cnf</span><br><span class="line"></span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment">## 同一局域网内注意要唯一</span></span><br><span class="line">server-id=100  </span><br><span class="line"><span class="comment">## 开启二进制日志功能，可以随便取（关键）</span></span><br><span class="line"><span class="built_in">log</span>-bin=mysql-bin</span><br></pre></td></tr></table></figure>
-<p>3.添加slave用户，用于slave读取binlog</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p123456 </span><br><span class="line"></span><br><span class="line"><span class="comment">#mysql5.7以下使用 CREATE USER 'slave'@'%' IDENTIFIED BY '123456';</span></span><br><span class="line"><span class="comment">#mysql5.8修改了默认的认证方式为caching_sha2_password ,如果使用此方式创建slave用户，</span></span><br><span class="line"><span class="comment">#那么在后面slave连接master的时候就需要使用加密方式进行连接，否则会报错：Authentication requires secure connection</span></span><br><span class="line"></span><br><span class="line">CREATE USER <span class="string">'slave'</span>@<span class="string">'%'</span> IDENTIFIED WITH mysql_native_password BY <span class="string">'123456'</span>;</span><br><span class="line"></span><br><span class="line">GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO <span class="string">'slave'</span>@<span class="string">'%'</span>;</span><br></pre></td></tr></table></figure>
-
-<p>4.重启容器</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker restart d45457d26cad</span><br></pre></td></tr></table></figure>
-
-<h2 id="mysql从服务器"><a href="#mysql从服务器" class="headerlink" title="mysql从服务器"></a>mysql从服务器</h2><h3 id="启动容器-1"><a href="#启动容器-1" class="headerlink" title="启动容器"></a>启动容器</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -p 3308:3306 --name mysql_slave -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest</span><br></pre></td></tr></table></figure>
-<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><p>1.进入容器</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it 3e80d15d8b00 /bin/bash</span><br></pre></td></tr></table></figure>
-<p>2.修改配置    </p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt update &amp;&amp; apt install  vim -y</span><br><span class="line">vim /etc/mysql/my.cnf</span><br><span class="line"></span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment">## 设置server_id,注意要唯一</span></span><br><span class="line">server-id=101  </span><br><span class="line"><span class="comment">## 开启二进制日志功能，以备Slave作为其它Slave的Master时使用</span></span><br><span class="line"><span class="built_in">log</span>-bin=mysql-slave-bin   </span><br><span class="line"><span class="comment">## relay_log配置中继日志</span></span><br><span class="line">relay_log=edu-mysql-relay-bin</span><br></pre></td></tr></table></figure>
-<p>3.重启容器</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker restart 3e80d15d8b00</span><br><span class="line">```    </span><br><span class="line"><span class="comment">## 配置slave使其连上master    </span></span><br><span class="line">```bash</span><br><span class="line">change master to master_host=<span class="string">'192.168.11.36'</span>, master_user=<span class="string">'slave'</span>, master_password=<span class="string">'123456'</span>, master_port=3307, master_log_file=<span class="string">'mysql-bin.000001'</span>, master_log_pos= 605, master_connect_retry=30;</span><br><span class="line"></span><br><span class="line">start slave </span><br><span class="line"></span><br><span class="line">show slave status \G 查看主从状态</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>参考文章<br><a href="https://www.cnblogs.com/songwenjie/p/9371422.html" target="_blank" rel="noopener">基于Docker的Mysql主从复制搭建</a></p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>mysql</category>
-      </categories>
-      <tags>
-        <tag>mysql主从同步</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>mysql/MySQL提升课程全面讲解MySQL架构设计</title>
     <url>/2020/04/01/mysql/MySQL%E6%8F%90%E5%8D%87%E8%AF%BE%E7%A8%8B%E5%85%A8%E9%9D%A2%E8%AE%B2%E8%A7%A3MySQL%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</url>
     <content><![CDATA[<h1 id="第一章-实例和故事"><a href="#第一章-实例和故事" class="headerlink" title="第一章 实例和故事"></a>第一章 实例和故事</h1><h2 id="什么决定了电商双11大促的成败"><a href="#什么决定了电商双11大促的成败" class="headerlink" title="什么决定了电商双11大促的成败"></a>什么决定了电商双11大促的成败</h2><h2 id="在双11大促的数据库服务器"><a href="#在双11大促的数据库服务器" class="headerlink" title="在双11大促的数据库服务器"></a>在双11大促的数据库服务器</h2><h2 id="在大促中什么影响了数据库性能"><a href="#在大促中什么影响了数据库性能" class="headerlink" title="在大促中什么影响了数据库性能"></a>在大促中什么影响了数据库性能</h2><ul>
@@ -3554,6 +3589,42 @@
 <h3 id="存储过程与触发器的区别"><a href="#存储过程与触发器的区别" class="headerlink" title="存储过程与触发器的区别"></a>存储过程与触发器的区别</h3><h4 id="存储过程"><a href="#存储过程" class="headerlink" title="存储过程"></a>存储过程</h4><p>是在大型数据库系统中，一组为了完成特定功能的SQL 语句集，存储在数据库中，经过第一次编译后再次调用不需要再次编译，用户通过指定存储过程的名字并给出参数（如果该存储过程带有参数）来执行它。</p>
 <h4 id="触发器"><a href="#触发器" class="headerlink" title="触发器"></a>触发器</h4><p>触发器是一种特殊类型的存储过程，它又不同于存储过程，触发器主要是通过事件进行触发而被执行的，而存储过程可以通过存储过程名字而被直接调用</p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>mysql/通过Docker安装配置MySQL主从节点</title>
+    <url>/2020/04/01/mysql/%E9%80%9A%E8%BF%87Docker%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEMySQL%E4%B8%BB%E4%BB%8E%E8%8A%82%E7%82%B9/</url>
+    <content><![CDATA[<h2 id="拉取最新版mysql镜像"><a href="#拉取最新版mysql镜像" class="headerlink" title="拉取最新版mysql镜像"></a>拉取最新版mysql镜像</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker pull mysql</span><br></pre></td></tr></table></figure>
+<h2 id="mysql主服务器"><a href="#mysql主服务器" class="headerlink" title="mysql主服务器"></a>mysql主服务器</h2><h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -p 3307:3306 --name mysql_master -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+
+<h3 id="修改配置并添加slave用户"><a href="#修改配置并添加slave用户" class="headerlink" title="修改配置并添加slave用户"></a>修改配置并添加slave用户</h3><p>1.进入容器</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker exec -it d45457d26cad &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
+
+<p>2.修改配置    </p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt update &amp;&amp; apt install  vim -y</span><br><span class="line">vim /etc/mysql/my.cnf</span><br><span class="line"></span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment">## 同一局域网内注意要唯一</span></span><br><span class="line">server-id=100  </span><br><span class="line"><span class="comment">## 开启二进制日志功能，可以随便取（关键）</span></span><br><span class="line"><span class="built_in">log</span>-bin=mysql-bin</span><br></pre></td></tr></table></figure>
+<p>3.添加slave用户，用于slave读取binlog</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p123456 </span><br><span class="line"></span><br><span class="line"><span class="comment">#mysql5.7以下使用 CREATE USER 'slave'@'%' IDENTIFIED BY '123456';</span></span><br><span class="line"><span class="comment">#mysql5.8修改了默认的认证方式为caching_sha2_password ,如果使用此方式创建slave用户，</span></span><br><span class="line"><span class="comment">#那么在后面slave连接master的时候就需要使用加密方式进行连接，否则会报错：Authentication requires secure connection</span></span><br><span class="line"></span><br><span class="line">CREATE USER <span class="string">'slave'</span>@<span class="string">'%'</span> IDENTIFIED WITH mysql_native_password BY <span class="string">'123456'</span>;</span><br><span class="line"></span><br><span class="line">GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO <span class="string">'slave'</span>@<span class="string">'%'</span>;</span><br></pre></td></tr></table></figure>
+
+<p>4.重启容器</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker restart d45457d26cad</span><br></pre></td></tr></table></figure>
+
+<h2 id="mysql从服务器"><a href="#mysql从服务器" class="headerlink" title="mysql从服务器"></a>mysql从服务器</h2><h3 id="启动容器-1"><a href="#启动容器-1" class="headerlink" title="启动容器"></a>启动容器</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -p 3308:3306 --name mysql_slave -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest</span><br></pre></td></tr></table></figure>
+<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><p>1.进入容器</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it 3e80d15d8b00 /bin/bash</span><br></pre></td></tr></table></figure>
+<p>2.修改配置    </p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt update &amp;&amp; apt install  vim -y</span><br><span class="line">vim /etc/mysql/my.cnf</span><br><span class="line"></span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment">## 设置server_id,注意要唯一</span></span><br><span class="line">server-id=101  </span><br><span class="line"><span class="comment">## 开启二进制日志功能，以备Slave作为其它Slave的Master时使用</span></span><br><span class="line"><span class="built_in">log</span>-bin=mysql-slave-bin   </span><br><span class="line"><span class="comment">## relay_log配置中继日志</span></span><br><span class="line">relay_log=edu-mysql-relay-bin</span><br></pre></td></tr></table></figure>
+<p>3.重启容器</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker restart 3e80d15d8b00</span><br><span class="line">```    </span><br><span class="line"><span class="comment">## 配置slave使其连上master    </span></span><br><span class="line">```bash</span><br><span class="line">change master to master_host=<span class="string">'192.168.11.36'</span>, master_user=<span class="string">'slave'</span>, master_password=<span class="string">'123456'</span>, master_port=3307, master_log_file=<span class="string">'mysql-bin.000001'</span>, master_log_pos= 605, master_connect_retry=30;</span><br><span class="line"></span><br><span class="line">start slave </span><br><span class="line"></span><br><span class="line">show slave status \G 查看主从状态</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>参考文章<br><a href="https://www.cnblogs.com/songwenjie/p/9371422.html" target="_blank" rel="noopener">基于Docker的Mysql主从复制搭建</a></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>mysql</category>
+      </categories>
+      <tags>
+        <tag>mysql主从同步</tag>
+      </tags>
   </entry>
   <entry>
     <title>nginx/如何利用nginx进行自动化负载均衡</title>
@@ -3735,53 +3806,6 @@
       </tags>
   </entry>
   <entry>
-    <title>go/gomod</title>
-    <url>/2020/04/01/go/gomod/</url>
-    <content><![CDATA[<h2 id="环境变量GO111MODULE"><a href="#环境变量GO111MODULE" class="headerlink" title="环境变量GO111MODULE"></a>环境变量GO111MODULE</h2><ul>
-<li><p>GO111MODULE=off </p>
-<blockquote>
-<p>go命令从不使用新模块支持。使用GOPATH模式(查找vendor目录和GOPATH路径下的依赖)</p>
-</blockquote>
-</li>
-<li><p>GO111MODULE=on </p>
-<blockquote>
-<p>go命令开启模块支持,此时执行go get 命令,所有依赖都会下到$GOPATH/pkg/mod ,go依赖查找也只会到$GOPATH/pkg/mod进行查找</p>
-</blockquote>
-</li>
-<li><p>GO111MODULE=auto </p>
-<blockquote>
-<p>默认值,go命令根据当前目录启用或禁用模块支持。仅当当前目录位于$GOPATH/src之外并且其本身包含go.mod文件或位于包含go.mod文件的目录下时，才启用模块支持。简而言之,就是项目包含go.mod文件时会开启模块支持</p>
-</blockquote>
-</li>
-</ul>
-<a id="more"></a>
-<p>注意：</p>
-<p>Go 1.13中，module mode优先级提升，GO111MODULE的默认值依然为auto，但在这个auto下，无论是在GOPATH/src下还是GOPATH之外的repo中，只要目录下有go.mod，go编译器都会使用go module来管理依赖。</p>
-<h2 id="go-mod命令"><a href="#go-mod命令" class="headerlink" title="go mod命令"></a>go mod命令</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download    下载依赖的module到本地cache</span><br><span class="line">edit        编辑go.mod文件</span><br><span class="line">graph       打印模块依赖图</span><br><span class="line">init        在当前文件夹下初始化一个新的module, 创建go.mod文件</span><br><span class="line">tidy        增加丢失的module，去掉未用的module</span><br><span class="line">vendor      将依赖复制到vendor下,注意依赖需要在import 中声明后才能进行导入</span><br><span class="line">verify      校验依赖</span><br><span class="line">why         解释为什么需要依赖</span><br></pre></td></tr></table></figure>
-<h2 id="go-get-…"><a href="#go-get-…" class="headerlink" title="go get ./…"></a>go get ./…</h2><p>查找出当前项目的依赖，并进行下载</p>
-<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2><p>GOPROXY 只有在GO111MODULE开启的时候生效，并且使用 go ./… 命令才能用到代理</p>
-<ul>
-<li><a href="http://mirrors.aliyun.com/goproxy" target="_blank" rel="noopener">http://mirrors.aliyun.com/goproxy</a> #阿里云代理</li>
-<li><a href="https://goproxy.cn" target="_blank" rel="noopener">https://goproxy.cn</a> #七牛云代理</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GOPROXY&#x3D;http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用本地包"><a href="#使用本地包" class="headerlink" title="使用本地包"></a>使用本地包</h2><p>go.mod 文件中：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">require modtest v0.0.0</span><br><span class="line">replace modtest v0.0.0 &#x3D;&gt; ..&#x2F;modtest</span><br></pre></td></tr></table></figure>
-
-<h2 id="打包命令"><a href="#打包命令" class="headerlink" title="打包命令"></a>打包命令</h2><p>1.使用GOPATH模式进行打包</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GO111MODULE&#x3D;off</span><br><span class="line">go build  -a -v -o app main.go</span><br></pre></td></tr></table></figure>
-<p>2.使用vendor目录下包来进行打包</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">go build -mod&#x3D;vendor -a -v -o app main.go</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>go</category>
-      </categories>
-      <tags>
-        <tag>gomod</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>go/golang面试题</title>
     <url>/2020/04/01/go/golang%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
     <content><![CDATA[<h2 id="golang-调度"><a href="#golang-调度" class="headerlink" title="golang 调度"></a>golang 调度</h2><ul>
@@ -3911,34 +3935,50 @@
       </tags>
   </entry>
   <entry>
-    <title>go/工作中遇到的问题</title>
-    <url>/2020/04/01/go/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>此文章记录，go开发中遇到的一些问题</p>
-<a id="more"></a>
-
-<h2 id="go-httpClient-出现大量ESTABLISHED-TIME-WAIT"><a href="#go-httpClient-出现大量ESTABLISHED-TIME-WAIT" class="headerlink" title="go httpClient 出现大量ESTABLISHED ,TIME_WAIT"></a>go httpClient 出现大量ESTABLISHED ,TIME_WAIT</h2><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>用户通过浏览器访问 go web 服务器A, A会通过httpClient 向服务器B发起http请求；</p>
-<p>服务器A 工作一段时间后总会报连接不上服务器B，服务器B重启后，一切正常；</p>
-<h3 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h3><p>由于go httpClient默认使用的是长连接，请求服务器B后，连接并未被释放掉，导致服务器A经过一段时间后socket被占满。</p>
-<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><p>golang http客户端在发送http请求的时候，需要头信息中声明本次使用的是http短链接。 </p>
-<h3 id="代码段"><a href="#代码段" class="headerlink" title="代码段"></a>代码段</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tr :&#x3D; &amp;http.Transport&#123;</span><br><span class="line">    DisableKeepAlives: true,&#x2F;&#x2F;禁用长连接</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="beegoOrm-或者gorm-如何向数据库中插入nil"><a href="#beegoOrm-或者gorm-如何向数据库中插入nil" class="headerlink" title="beegoOrm 或者gorm 如何向数据库中插入nil"></a>beegoOrm 或者gorm 如何向数据库中插入nil</h2><p>默认情况下 orm 会将字段零值插入数据库</p>
-<h3 id="解决办法-1"><a href="#解决办法-1" class="headerlink" title="解决办法"></a>解决办法</h3><p>定义字段为指针类型</p>
-<h2 id="go-常用工具"><a href="#go-常用工具" class="headerlink" title="go 常用工具"></a>go 常用工具</h2><ul>
-<li>go vet main.go  打印检查</li>
-<li>go run -race main.go  竞态检查</li>
-<li>go build -ldflags “-s -w” -a -v -o main -trimpath main.go  减小执行程序大小， 原理，剥离调试代码 <blockquote>
-<p>终极压缩： upx -9 main.go</p>
-  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ubuntu 下面 安装upx-ucl :sudo apt install upx-ucl</span><br><span class="line">压缩 ： upx-ucl -9 main.go</span><br></pre></td></tr></table></figure></blockquote>
+    <title>go/gomod</title>
+    <url>/2020/04/01/go/gomod/</url>
+    <content><![CDATA[<h2 id="环境变量GO111MODULE"><a href="#环境变量GO111MODULE" class="headerlink" title="环境变量GO111MODULE"></a>环境变量GO111MODULE</h2><ul>
+<li><p>GO111MODULE=off </p>
+<blockquote>
+<p>go命令从不使用新模块支持。使用GOPATH模式(查找vendor目录和GOPATH路径下的依赖)</p>
+</blockquote>
 </li>
-<li>go编译exe程序<pre><code>CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build  -ldflags &quot;-s -w&quot; -a -v -o createtest.exe -trimpath main.go </code></pre></li>
+<li><p>GO111MODULE=on </p>
+<blockquote>
+<p>go命令开启模块支持,此时执行go get 命令,所有依赖都会下到$GOPATH/pkg/mod ,go依赖查找也只会到$GOPATH/pkg/mod进行查找</p>
+</blockquote>
+</li>
+<li><p>GO111MODULE=auto </p>
+<blockquote>
+<p>默认值,go命令根据当前目录启用或禁用模块支持。仅当当前目录位于$GOPATH/src之外并且其本身包含go.mod文件或位于包含go.mod文件的目录下时，才启用模块支持。简而言之,就是项目包含go.mod文件时会开启模块支持</p>
+</blockquote>
+</li>
 </ul>
+<a id="more"></a>
+<p>注意：</p>
+<p>Go 1.13中，module mode优先级提升，GO111MODULE的默认值依然为auto，但在这个auto下，无论是在GOPATH/src下还是GOPATH之外的repo中，只要目录下有go.mod，go编译器都会使用go module来管理依赖。</p>
+<h2 id="go-mod命令"><a href="#go-mod命令" class="headerlink" title="go mod命令"></a>go mod命令</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download    下载依赖的module到本地cache</span><br><span class="line">edit        编辑go.mod文件</span><br><span class="line">graph       打印模块依赖图</span><br><span class="line">init        在当前文件夹下初始化一个新的module, 创建go.mod文件</span><br><span class="line">tidy        增加丢失的module，去掉未用的module</span><br><span class="line">vendor      将依赖复制到vendor下,注意依赖需要在import 中声明后才能进行导入</span><br><span class="line">verify      校验依赖</span><br><span class="line">why         解释为什么需要依赖</span><br></pre></td></tr></table></figure>
+<h2 id="go-get-…"><a href="#go-get-…" class="headerlink" title="go get ./…"></a>go get ./…</h2><p>查找出当前项目的依赖，并进行下载</p>
+<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2><p>GOPROXY 只有在GO111MODULE开启的时候生效，并且使用 go ./… 命令才能用到代理</p>
+<ul>
+<li><a href="http://mirrors.aliyun.com/goproxy" target="_blank" rel="noopener">http://mirrors.aliyun.com/goproxy</a> #阿里云代理</li>
+<li><a href="https://goproxy.cn" target="_blank" rel="noopener">https://goproxy.cn</a> #七牛云代理</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GOPROXY&#x3D;http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用本地包"><a href="#使用本地包" class="headerlink" title="使用本地包"></a>使用本地包</h2><p>go.mod 文件中：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">require modtest v0.0.0</span><br><span class="line">replace modtest v0.0.0 &#x3D;&gt; ..&#x2F;modtest</span><br></pre></td></tr></table></figure>
+
+<h2 id="打包命令"><a href="#打包命令" class="headerlink" title="打包命令"></a>打包命令</h2><p>1.使用GOPATH模式进行打包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GO111MODULE&#x3D;off</span><br><span class="line">go build  -a -v -o app main.go</span><br></pre></td></tr></table></figure>
+<p>2.使用vendor目录下包来进行打包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">go build -mod&#x3D;vendor -a -v -o app main.go</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>go</category>
       </categories>
       <tags>
-        <tag>疑难杂症</tag>
+        <tag>gomod</tag>
       </tags>
   </entry>
   <entry>
@@ -4054,6 +4094,9 @@
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git pull --allow-unrelated-histories 忽略版本不同造成的影响</span><br></pre></td></tr></table></figure>
 
 <h4 id="本地无仓库，直接从远程仓库克隆"><a href="#本地无仓库，直接从远程仓库克隆" class="headerlink" title="本地无仓库，直接从远程仓库克隆"></a>本地无仓库，直接从远程仓库克隆</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone git@server-name:path&#x2F;repo-name.git</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="git配置过程中fatal-拒绝合并无关的历史"><a href="#git配置过程中fatal-拒绝合并无关的历史" class="headerlink" title="git配置过程中fatal:拒绝合并无关的历史"></a>git配置过程中fatal:拒绝合并无关的历史</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">首先将远程仓库和本地仓库关联起来：</span><br><span class="line"></span><br><span class="line">git branch --set-upstream-to&#x3D;origin&#x2F;master master</span><br><span class="line"></span><br><span class="line">然后使用git pull整合远程仓库和本地仓库，</span><br><span class="line"></span><br><span class="line">git pull --allow-unrelated-histories    (忽略版本不同造成的影响)</span><br></pre></td></tr></table></figure>
 
 <h3 id="分支合并策略"><a href="#分支合并策略" class="headerlink" title="分支合并策略"></a>分支合并策略</h3><p>通常，合并分支时，如果可能，Git会用Fast forward模式，但这种模式下，删除分支后，会丢掉分支信息。</p>
 <p>如果要强制禁用Fast forward模式，Git就会在merge时生成一个新的commit，这样，从分支历史上就可以看出分支信息。</p>
