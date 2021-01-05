@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="baidu-site-verification" content="D033aiBRFi">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://phpdi.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="摘录自数据结构和算法（Golang实现）https:&#x2F;&#x2F;www.bookstack.cn&#x2F;books&#x2F;hunterhug-goa.c 基础知识什么是数据结构大多数算法都需要组织数据，所以产生了数据结构。数据结构在计算机中，主要是用来实现各种算法的基础，当然数据结构本身也是算法的一部分。   基本的数据结构有：链表，栈和队列，树和图。 链表，就是把数据链接起来，关联起来，一个数据节点指向另外一个数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go&#x2F;数据结构与算法">
+<meta property="og:url" content="https://phpdi.github.io/2020/12/17/go/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="phpdi">
+<meta property="og:description" content="摘录自数据结构和算法（Golang实现）https:&#x2F;&#x2F;www.bookstack.cn&#x2F;books&#x2F;hunterhug-goa.c 基础知识什么是数据结构大多数算法都需要组织数据，所以产生了数据结构。数据结构在计算机中，主要是用来实现各种算法的基础，当然数据结构本身也是算法的一部分。   基本的数据结构有：链表，栈和队列，树和图。 链表，就是把数据链接起来，关联起来，一个数据节点指向另外一个数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://phpdi.github.io/2020/12/17/go/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/sort.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/12/17/go/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F.png">
+<meta property="article:published_time" content="2020-12-17T08:26:29.839Z">
+<meta property="article:modified_time" content="2020-12-24T03:03:14.113Z">
+<meta property="article:author" content="Chen Yu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://phpdi.github.io/2020/12/17/go/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/sort.png">
+
+<link rel="canonical" href="https://phpdi.github.io/2020/12/17/go/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>go/数据结构与算法 | phpdi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">phpdi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">飞向自由</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2020/12/17/go/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpeg">
+      <meta itemprop="name" content="Chen Yu">
+      <meta itemprop="description" content="自律给我自由">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="phpdi">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          go/数据结构与算法
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-12-17 16:26:29" itemprop="dateCreated datePublished" datetime="2020-12-17T16:26:29+08:00">2020-12-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-24 11:03:14" itemprop="dateModified" datetime="2020-12-24T11:03:14+08:00">2020-12-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="摘录自"><a href="#摘录自" class="headerlink" title="摘录自"></a>摘录自</h1><p>数据结构和算法（Golang实现）<br><a href="https://www.bookstack.cn/books/hunterhug-goa.c" target="_blank" rel="noopener">https://www.bookstack.cn/books/hunterhug-goa.c</a></p>
+<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="什么是数据结构"><a href="#什么是数据结构" class="headerlink" title="什么是数据结构"></a>什么是数据结构</h2><p>大多数算法都需要组织数据，所以产生了数据结构。数据结构在计算机中，主要是用来实现各种算法的基础，当然数据结构本身也是算法的一部分。  </p>
+<h2 id="基本的数据结构有：链表，栈和队列，树和图。"><a href="#基本的数据结构有：链表，栈和队列，树和图。" class="headerlink" title="基本的数据结构有：链表，栈和队列，树和图。"></a>基本的数据结构有：链表，栈和队列，树和图。</h2><ul>
+<li>链表，就是把数据链接起来，关联起来，一个数据节点指向另外一个数据节点，像自然界的一条条铁链，大部分数据结构，都是由链表的若干变种来表示</li>
+<li>栈和队列，主要用来存储多个数据，只不过一个是先进后出，一个先进先出。比如下压栈，先入栈的数据是最后才能出来，而我们熟知的队列，先排队的人肯定先获得服务。</li>
+<li>其次是树和图，树就是有一个树根节点，存放着数据，下面有很多子节点，也存放着数据，类比自然界的树。图则可以类比自然界的地图，多个点指向多个点，点和点之间有一条或多条边，而这些点存放着数据，边也可以存放着数据，比如距离等。</li>
+</ul>
+<h2 id="分治法和递归"><a href="#分治法和递归" class="headerlink" title="分治法和递归"></a>分治法和递归</h2><p>分治法一般使用递归来求问题的解。<br>理论上，所有的递归方式都可以转化为非递归的方式，只不过使用递归，代码的可读性更高。</p>
+<h3 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h3><p>递归就是不断地调用函数本身。<br>如果递归式使用了运算符，每次重复的调用都使得运算的链条不断加长，系统不得不使用栈进行数据保存和恢复。</p>
+<h3 id="尾部递归"><a href="#尾部递归" class="headerlink" title="尾部递归"></a>尾部递归</h3><p>尾部递归是指递归函数在调用自身后直接传回其值，而不对其再加运算，效率将会极大的提高。</p>
+<h3 id="例子1-求阶乘-1234-N"><a href="#例子1-求阶乘-1234-N" class="headerlink" title="例子1 求阶乘 1234..N"></a>例子1 求阶乘 1<em>2</em>3<em>4..</em>N</h3><h4 id="递归解法"><a href="#递归解法" class="headerlink" title="递归解法"></a>递归解法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">func Rescuvie(n int)int&#123;</span><br><span class="line">    if n&#x3D;&#x3D;1&#123;</span><br><span class="line">        return 1</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return n*Rescuvie(n-1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="尾递归解法"><a href="#尾递归解法" class="headerlink" title="尾递归解法"></a>尾递归解法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">func Rescuvie(n int,a int)int&#123;</span><br><span class="line">    if n&#x3D;&#x3D;1&#123;</span><br><span class="line">        return a</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return Rescuvie(n-1,n*a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="例子2-斐波那契数列"><a href="#例子2-斐波那契数列" class="headerlink" title="例子2 斐波那契数列"></a>例子2 斐波那契数列</h3><p>斐波那契数列是指，后一个数是前两个数的和的一种数列</p>
+<h4 id="递归-1"><a href="#递归-1" class="headerlink" title="递归"></a>递归</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">func fibonacci(num int) int&#123;</span><br><span class="line">	if num&lt;2&#123;</span><br><span class="line">		return 1</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	return fibonacci(num-1) + fibonacci(num-2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="尾部递归-1"><a href="#尾部递归-1" class="headerlink" title="尾部递归"></a>尾部递归</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">func fibonacci(n int,a1,a2 int)&#123;</span><br><span class="line">    if n&#x3D;&#x3D;0 &#123;</span><br><span class="line">        return a1</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return fibonacci(n-1,a2,a1+a2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="斐波那契数列-不使用递归的解法，闭包"><a href="#斐波那契数列-不使用递归的解法，闭包" class="headerlink" title="斐波那契数列 不使用递归的解法，闭包"></a>斐波那契数列 不使用递归的解法，闭包</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">func fibonacci() func() int&#123;</span><br><span class="line">	a, b :&#x3D; 0, 1</span><br><span class="line">	return func() int&#123;</span><br><span class="line">		a, b &#x3D; b, a+b</span><br><span class="line">		return a</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="例子3-二分查找"><a href="#例子3-二分查找" class="headerlink" title="例子3 二分查找"></a>例子3 二分查找</h3><p>在一个已经排好序的数列，找出某个数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">func BinarySearch(array []int, target int, l, r int) int &#123;</span><br><span class="line">    if l &gt; r &#123;</span><br><span class="line">        &#x2F;&#x2F; 出界了，找不到</span><br><span class="line">        return -1</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 从中间开始找</span><br><span class="line">    mid :&#x3D; (l + r) &#x2F; 2</span><br><span class="line">    middleNum :&#x3D; array[mid]</span><br><span class="line">    if middleNum &#x3D;&#x3D; target &#123;</span><br><span class="line">        return mid &#x2F;&#x2F; 找到了</span><br><span class="line">    &#125; else if middleNum &gt; target &#123;</span><br><span class="line">        &#x2F;&#x2F; 中间的数比目标还大，从左边找</span><br><span class="line">        return BinarySearch(array, target, 1, mid-1)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        &#x2F;&#x2F; 中间的数比目标还小，从右边找</span><br><span class="line">        return BinarySearch(array, target, mid+1, r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="算法复杂度及渐进符号"><a href="#算法复杂度及渐进符号" class="headerlink" title="算法复杂度及渐进符号"></a>算法复杂度及渐进符号</h2><p>复杂度有两个维度：时间和空间。</p>
+<p>###　算法规模<br>算法的优先级排列如下，一般排在上面的要优于排在下面的：　　<br>1.常数复杂度：O(1)<br>2.对数复杂度：O(logn)<br>3.一次方复杂度：O(n)<br>4.一次方乘对数复杂度：O(nlogn)<br>5.乘方复杂度：O(n^2)，O(n^3)<br>6.指数复杂度：O(2^n)<br>7.阶乘复杂度：O(n!)<br>8.无限大指数复杂度：O(n^n)  </p>
+<h2 id="常见数据结构和算法"><a href="#常见数据结构和算法" class="headerlink" title="常见数据结构和算法"></a>常见数据结构和算法</h2><ol>
+<li>排序算法  </li>
+<li>查找算法  </li>
+<li>图相关算法</li>
+<li>其他算法</li>
+</ol>
+<h3 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h3><p>链表由一个个数据节点组成的，它是一个递归结构，要么它是空的，要么它存在一个指向另外一个数据节点的引用。<br>简单来说，链表就是将一个数据与另一个数据关联起来的结构  </p>
+<ul>
+<li>单链表，就是链表是单向的，像我们上面这个结构一样，可以一直往下找到下一个数据节点，它只有一个方向，它不能往回找</li>
+<li>双链表，每个节点既可以找到它之前的节点，也可以找到之后的节点，是双向的。</li>
+<li>循环链表，就是它一直往下找数据节点，最后回到了自己那个节点，形成了一个回路。循环单链表和循环双链表的区别就是，一个只能一个方向走，一个两个方向都可以走。</li>
+</ul>
+<h4 id="数组和链表"><a href="#数组和链表" class="headerlink" title="数组和链表"></a>数组和链表</h4><p>数组和链表是两个不同的概念。一个是编程语言提供的基本数据类型，表示一个连续的内存空间，可通过一个索引访问数据。另一个是我们定义的数据结构，通过一个数据节点，可以定位到另一个数据节点，不要求连续的内存空间。<br>数组的优点是占用空间小，查询快，直接使用索引就可以获取数据元素，缺点是移动和删除数据元素要大量移动空间。<br>链表的优点是移动和删除数据元素速度快，只要把相关的数据元素重新链接起来，但缺点是占用空间大，查找需要遍历。<br>链表 和 数组 可以用来辅助构建各种基本数据结构。  </p>
+<h3 id="可变长数组"><a href="#可变长数组" class="headerlink" title="可变长数组"></a>可变长数组</h3><p>可变长数组在实际开发上，经常会使用到，其在固定大小数组的基础上，会自动进行容量扩展。<br>Golang 自动提供了这一数据类型：切片（可变长数组）  </p>
+<h3 id="栈和队列"><a href="#栈和队列" class="headerlink" title="栈和队列"></a>栈和队列</h3><ul>
+<li>栈：先进后出，先进队的数据最后才出来。</li>
+<li>队列：先进先出，先进队的数据先出来。</li>
+</ul>
+<h3 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h3><p>列表 List：存放数据，数据按顺序排列，可以依次入队和出队，有序号关系，可以取出某序号的数据。<br>队列 (queue) 和先进后出的 栈（stack） 都是列表<br>线性表 也是列表的意思，示具有相同特性的数据元素的有限序列</p>
+<h3 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h3><p>字典是存储键值对的数据结构，把一个键和一个值映射起来，一一映射，键不能重复。<br>字典的实现有两种方式：哈希表 HashTable 和红黑树 RBTree。Golang 语言中字典 map 的实现由哈希表实现  </p>
+<h3 id="树"><a href="#树" class="headerlink" title="树"></a>树</h3><p>树是一种比较高级的基础数据结构，由 n 个有限节点组成的具有层次关系的集合。</p>
+<h4 id="树的定义"><a href="#树的定义" class="headerlink" title="树的定义"></a>树的定义</h4><ol>
+<li>有节点间的层次关系，分为父节点和子节点。</li>
+<li>有唯一一个根节点，该根节点没有父节点。</li>
+<li>除了根节点，每个节点有且只有一个父节点。</li>
+<li>每一个节点本身以及它的后代也是一棵树，是一个递归的结构。</li>
+<li>没有后代的节点称为叶子节点，没有节点的树称为空树。</li>
+</ol>
+<h4 id="二叉树的数学特征"><a href="#二叉树的数学特征" class="headerlink" title="二叉树的数学特征"></a>二叉树的数学特征</h4><ol>
+<li>高度为 h≥0 的二叉树至少有 h+1 个结点，比如最不平衡的二叉树就是退化的线性链表结构，所有的节点都只有左儿子节点，或者所有的节点都只有右儿子节点。</li>
+<li>高度为 h≥0 的二叉树至多有 2^h+1 个节点，比如这棵树是满二叉树。</li>
+<li>含有 n≥1 个结点的二叉树的高度至多为 n-1，由 1 退化的线性链表可以反推。</li>
+<li>含有 n≥1 个结点的二叉树的高度至少为 logn，由 2 满二叉树可以反推。</li>
+<li>在二叉树的第 i 层，至多有 2^(i-1) 个节点，比如该层是满的。</li>
+</ol>
+<h4 id="四种遍历方法"><a href="#四种遍历方法" class="headerlink" title="四种遍历方法"></a>四种遍历方法</h4><ol>
+<li>先序遍历：先访问根节点，再访问左子树，最后访问右子树。</li>
+<li>后序遍历：先访问左子树，再访问右子树，最后访问根节点。</li>
+<li>中序遍历：先访问左子树，再访问根节点，最后访问右子树。</li>
+<li>层次遍历：每一层从左到右访问每一个节点。</li>
+</ol>
+<h3 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a>排序算法</h3><p>快速排序，归并排序和堆排序是比较高级的排序算法。<br>目前被认为综合最好的高级排序算法是快速排序，快速排序的平均用时最短，大多数的编程库内置的排序算法都是它。<br><img src="/2020/12/17/go/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/sort.png" alt></p>
+<p>在 sort.go文件中，排序算法有: 插入排序(insertionSort)、堆排序(heapSort)，快速排序(quickSort)、希尔排序(ShellSort)、归并排序(SymMerge)。 这些函数都是以小写字母开头，意味着他们对外是不可见的(letter case set visibility)。其中，归并排序用于 Stable函数，其余算法用于 Sort函数。</p>
+<h4 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h4><p>从第一个数开始，依次比较相邻的两个数，如果前面一个数比后面一个数大，那么交换位置，直到处理到最后一个数，最后的这个数是最大的。 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line">import &quot;fmt&quot;</span><br><span class="line">func BubbleSort(list []int) &#123;</span><br><span class="line">    n :&#x3D; len(list)</span><br><span class="line">    &#x2F;&#x2F; 在一轮中有没有交换过</span><br><span class="line">    didSwap :&#x3D; false</span><br><span class="line">    &#x2F;&#x2F; 进行 N-1 轮迭代</span><br><span class="line">    for i :&#x3D; n - 1; i &gt; 0; i-- &#123;</span><br><span class="line">        &#x2F;&#x2F; 每次从第一位开始比较，比较到第 i 位就不比较了，因为前一轮该位已经有序了</span><br><span class="line">        for j :&#x3D; 0; j &lt; i; j++ &#123;</span><br><span class="line">            &#x2F;&#x2F; 如果前面的数比后面的大，那么交换</span><br><span class="line">            if list[j] &gt; list[j+1] &#123;</span><br><span class="line">                list[j], list[j+1] &#x3D; list[j+1], list[j]</span><br><span class="line">                didSwap &#x3D; true</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 如果在一轮中没有交换过，那么已经排好序了，直接返回</span><br><span class="line">        if !didSwap &#123;</span><br><span class="line">            return</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">func main() &#123;</span><br><span class="line">    list :&#x3D; []int&#123;5, 9, 1, 6, 8, 14, 6, 49, 25, 4, 6, 3&#125;</span><br><span class="line">    BubbleSort(list)</span><br><span class="line">    fmt.Println(list)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h4><p>选择排序，一般我们指的是简单选择排序，也可以叫直接选择排序，它不像冒泡排序一样相邻地交换元素，而是通过选择最小的元素，每轮迭代只需交换一次。虽然交换次数比冒泡少很多，但效率和冒泡排序一样的糟糕。  </p>
+<p>改进：我们每一轮，除了找最小数之外，还找最大数，然后分别和前面和后面的元素交换，这样循环次数减少一半</p>
+<h4 id="插入排序、希尔排序"><a href="#插入排序、希尔排序" class="headerlink" title="插入排序、希尔排序"></a>插入排序、希尔排序</h4><p>一般建议待排序数组为小规模情况下使用直接插入排序，在规模中等的情况下可以使用希尔排序，但在大规模还是要使用快速排序，归并排序或堆排序。</p>
+<h4 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h4><p>归并排序是一种分治策略的排序算法。它是一种比较特殊的排序算法，通过递归地先使每个子序列有序，再将两个有序的序列进行合并成一个有序的序列。  </p>
+<blockquote>
+<p>归并排序首先由著名的现代计算机之父 冯·诺依曼 在 1945 年发明</p>
+</blockquote>
+<h5 id="自顶向下归并排序"><a href="#自顶向下归并排序" class="headerlink" title="自顶向下归并排序"></a>自顶向下归并排序</h5><p>使用递归实现，时间复杂度为：O(nlogn)。 空间复杂度为：O(logn)</p>
+<h5 id="自底向上归并排序"><a href="#自底向上归并排序" class="headerlink" title="自底向上归并排序"></a>自底向上归并排序</h5><p>不使用递归，时间复杂度为：O(nlogn)。 空间复杂度为：O(1)</p>
+<h4 id="优先队列及堆排序"><a href="#优先队列及堆排序" class="headerlink" title="优先队列及堆排序"></a>优先队列及堆排序</h4><p>优先队列是一种能完成以下任务的队列：插入一个数值，取出最小或最大的数值（获取数值，并且删除）。<br>优先队列可以用二叉树来实现，我们称这种结构为二叉堆。</p>
+<h4 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h4><p>快速排序通过一趟排序将要排序的数据分割成独立的两部分，其中一部分的所有数据都比另外一部分的所有数据都要小，然后再按此方法对这两部分数据分别进行快速排序，整个排序过程可以递归进行，以此达到整个数据变成有序序列。<br>快速排序的每一轮处理其实就是将这一轮的基准数归位，直到所有的数都归位为止，排序就结束了<br><img src="/2020/12/17/go/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F.png" alt></p>
+<h4 id="内置库使用快速排序的原因"><a href="#内置库使用快速排序的原因" class="headerlink" title="内置库使用快速排序的原因"></a>内置库使用快速排序的原因</h4><p>首先堆排序，归并排序最好最坏时间复杂度都是：O(nlogn)，而快速排序最坏的时间复杂度是：O(n^2)，但是很多编程语言内置的排序算法使用的仍然是快速排序，这是为什么？</p>
+<ol>
+<li>这个问题有偏颇，选择排序算法要看具体的场景，Linux 内核用的排序算法就是堆排序，而 Java 对于数量比较多的复杂对象排序，内置排序使用的是归并排序，只是一般情况下，快速排序更快。</li>
+<li>归并排序有两个稳定，第一个稳定是排序前后相同的元素位置不变，第二个稳定是，每次都是很平均地进行排序，读取数据也是顺序读取，能够利用存储器缓存的特征，比如从磁盘读取数据进行排序。因为排序过程需要占用额外的辅助数组空间，所以这部分有代价损耗，但是原地手摇的归并排序克服了这个缺陷。</li>
+<li>复杂度中，大 O 有一个常数项被省略了，堆排序每次取最大的值之后，都需要进行节点翻转，重新恢复堆的特征，做了大量无用功，常数项比快速排序大，大部分情况下比快速排序慢很多。但是堆排序时间较稳定，不会出现快排最坏 O(n^2) 的情况，且省空间，不需要额外的存储空间和栈空间。</li>
+<li>当待排序数量大于16000个元素时，使用自底向上的堆排序比快速排序还快可见此：<a href="https://core.ac.uk/download/pdf/82350265.pdf。" target="_blank" rel="noopener">https://core.ac.uk/download/pdf/82350265.pdf。</a></li>
+<li>快速排序最坏情况下复杂度高，主要在于切分不像归并排序一样平均，而是很依赖基准数的现在，我们通过改进，比如随机数，三切分等，这种最坏情况的概率极大的降低。大多数情况下，它并不会那么地坏，大多数快才是真的块。</li>
+<li>归并排序和快速排序都是分治法，排序的数据都是相邻的，而堆排序比较的数可能跨越很大的范围，导致局部性命中率降低，不能利用现代存储器缓存的特征，加载数据过程会损失性能。</li>
+</ol>
+<p>对稳定性有要求的，要求排序前后相同元素位置不变，可以使用归并排序，Java 中的复杂对象类型，要求排序前后位置不能发生变化，所以小规模数据下使用了直接插入排序，大规模数据下使用了归并排序。</p>
+<p>对栈，存储空间有要求的可以使用堆排序，比如 Linux 内核栈小，快速排序占用程序栈太大了，使用快速排序可能栈溢出，所以使用了堆排序。</p>
+<h4 id="golang-标准库sort排序"><a href="#golang-标准库sort排序" class="headerlink" title="golang 标准库sort排序"></a>golang 标准库sort排序</h4><h5 id="sort-SliceStable"><a href="#sort-SliceStable" class="headerlink" title="sort.SliceStable"></a>sort.SliceStable</h5><p>会先按照 20 个元素的范围，对整个切片分段进行插入排序，因为小数组插入排序效率高，然后再对这些已排好序的小数组进行归并排序。其中归并排序还使用了原地排序，节约了辅助空间。</p>
+<h5 id="sort-Slice"><a href="#sort-Slice" class="headerlink" title="sort.Slice"></a>sort.Slice</h5><p>快速排序限制程序栈的层数为： 2*ceil(log(n+1))，当递归超过该层时表示程序栈过深，那么转为堆排序。<br>上述快速排序还使用了三种优化，第一种是递归时小数组转为插入排序，第二种是使用了中位数基准数，第三种使用了三切分。</p>
+<h3 id="查找算法"><a href="#查找算法" class="headerlink" title="查找算法"></a>查找算法</h3><ol>
+<li>散列查找：也称哈希查找，有拉链法查找，也有线性探测法查找，拉链法使用数组链表结构，线性探测法使用数组。</li>
+<li>树查找：有搜索二叉树，平衡查找树如：红黑树，B树，AVL树，B+等，使用链表树结构。</li>
+</ol>
+<h4 id="哈希表：散列查找"><a href="#哈希表：散列查找" class="headerlink" title="哈希表：散列查找"></a>哈希表：散列查找</h4><ul>
+<li>线性探测法</li>
+<li>拉链法<h3 id="二叉查找树"><a href="#二叉查找树" class="headerlink" title="二叉查找树"></a>二叉查找树</h3>二叉查找树，又叫二叉排序树，二叉搜索树，是一种有特定规则的二叉树  </li>
+</ul>
+<ol>
+<li>它是一棵二叉树，或者是空树。</li>
+<li>左子树所有节点的值都小于它的根节点，右子树所有节点的值都大于它的根节点。</li>
+<li>左右子树也是一棵二叉查找树。<br>二叉查找树的特点是，一直往左儿子往下找左儿子，可以找到最小的元素，一直往右儿子找右儿子，可以找到最大的元素。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/12/08/go/go%E5%AD%A6%E4%B9%A0%E4%B9%A6%E7%B1%8D/" rel="prev" title="go/go学习书籍">
+      <i class="fa fa-chevron-left"></i> go/go学习书籍
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#摘录自"><span class="nav-number">1.</span> <span class="nav-text">摘录自</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基础知识"><span class="nav-number">2.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是数据结构"><span class="nav-number">2.1.</span> <span class="nav-text">什么是数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本的数据结构有：链表，栈和队列，树和图。"><span class="nav-number">2.2.</span> <span class="nav-text">基本的数据结构有：链表，栈和队列，树和图。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分治法和递归"><span class="nav-number">2.3.</span> <span class="nav-text">分治法和递归</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#递归"><span class="nav-number">2.3.1.</span> <span class="nav-text">递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#尾部递归"><span class="nav-number">2.3.2.</span> <span class="nav-text">尾部递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#例子1-求阶乘-1234-N"><span class="nav-number">2.3.3.</span> <span class="nav-text">例子1 求阶乘 1234..N</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#递归解法"><span class="nav-number">2.3.3.1.</span> <span class="nav-text">递归解法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#尾递归解法"><span class="nav-number">2.3.3.2.</span> <span class="nav-text">尾递归解法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#例子2-斐波那契数列"><span class="nav-number">2.3.4.</span> <span class="nav-text">例子2 斐波那契数列</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#递归-1"><span class="nav-number">2.3.4.1.</span> <span class="nav-text">递归</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#尾部递归-1"><span class="nav-number">2.3.4.2.</span> <span class="nav-text">尾部递归</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#斐波那契数列-不使用递归的解法，闭包"><span class="nav-number">2.3.4.3.</span> <span class="nav-text">斐波那契数列 不使用递归的解法，闭包</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#例子3-二分查找"><span class="nav-number">2.3.5.</span> <span class="nav-text">例子3 二分查找</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#算法复杂度及渐进符号"><span class="nav-number">2.4.</span> <span class="nav-text">算法复杂度及渐进符号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见数据结构和算法"><span class="nav-number">2.5.</span> <span class="nav-text">常见数据结构和算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#链表"><span class="nav-number">2.5.1.</span> <span class="nav-text">链表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#数组和链表"><span class="nav-number">2.5.1.1.</span> <span class="nav-text">数组和链表</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可变长数组"><span class="nav-number">2.5.2.</span> <span class="nav-text">可变长数组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#栈和队列"><span class="nav-number">2.5.3.</span> <span class="nav-text">栈和队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列表"><span class="nav-number">2.5.4.</span> <span class="nav-text">列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字典"><span class="nav-number">2.5.5.</span> <span class="nav-text">字典</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#树"><span class="nav-number">2.5.6.</span> <span class="nav-text">树</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#树的定义"><span class="nav-number">2.5.6.1.</span> <span class="nav-text">树的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二叉树的数学特征"><span class="nav-number">2.5.6.2.</span> <span class="nav-text">二叉树的数学特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四种遍历方法"><span class="nav-number">2.5.6.3.</span> <span class="nav-text">四种遍历方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#排序算法"><span class="nav-number">2.5.7.</span> <span class="nav-text">排序算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#冒泡排序"><span class="nav-number">2.5.7.1.</span> <span class="nav-text">冒泡排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#选择排序"><span class="nav-number">2.5.7.2.</span> <span class="nav-text">选择排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#插入排序、希尔排序"><span class="nav-number">2.5.7.3.</span> <span class="nav-text">插入排序、希尔排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#归并排序"><span class="nav-number">2.5.7.4.</span> <span class="nav-text">归并排序</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#自顶向下归并排序"><span class="nav-number">2.5.7.4.1.</span> <span class="nav-text">自顶向下归并排序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自底向上归并排序"><span class="nav-number">2.5.7.4.2.</span> <span class="nav-text">自底向上归并排序</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#优先队列及堆排序"><span class="nav-number">2.5.7.5.</span> <span class="nav-text">优先队列及堆排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#快速排序"><span class="nav-number">2.5.7.6.</span> <span class="nav-text">快速排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内置库使用快速排序的原因"><span class="nav-number">2.5.7.7.</span> <span class="nav-text">内置库使用快速排序的原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#golang-标准库sort排序"><span class="nav-number">2.5.7.8.</span> <span class="nav-text">golang 标准库sort排序</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#sort-SliceStable"><span class="nav-number">2.5.7.8.1.</span> <span class="nav-text">sort.SliceStable</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#sort-Slice"><span class="nav-number">2.5.7.8.2.</span> <span class="nav-text">sort.Slice</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查找算法"><span class="nav-number">2.5.8.</span> <span class="nav-text">查找算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#哈希表：散列查找"><span class="nav-number">2.5.8.1.</span> <span class="nav-text">哈希表：散列查找</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二叉查找树"><span class="nav-number">2.5.9.</span> <span class="nav-text">二叉查找树</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chen Yu"
+      src="/images/head.jpeg">
+  <p class="site-author-name" itemprop="name">Chen Yu</p>
+  <div class="site-description" itemprop="description">自律给我自由</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+<div>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv" style='display:none'>
+    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    <span class="post-meta-divider">|</span>
+</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+    有<span id="busuanzi_value_site_uv"></span>人看过我的博客啦
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
