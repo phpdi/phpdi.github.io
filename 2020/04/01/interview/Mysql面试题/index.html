@@ -49,22 +49,22 @@
 
   <meta name="description" content="MySQL 索引最左前缀原则有一个复合索引：  1INDEX(a, b, c) 哪些组合会用上索引？ 答案123456查询方式                                                   能否用上索引---------------------------------------------------+----------------------------">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mysql&#x2F;Mysql面试题">
-<meta property="og:url" content="https://phpdi.github.io/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/index.html">
+<meta property="og:title" content="interview&#x2F;Mysql面试题">
+<meta property="og:url" content="https://phpdi.github.io/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/index.html">
 <meta property="og:site_name" content="phpdi">
 <meta property="og:description" content="MySQL 索引最左前缀原则有一个复合索引：  1INDEX(a, b, c) 哪些组合会用上索引？ 答案123456查询方式                                                   能否用上索引---------------------------------------------------+----------------------------">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://phpdi.github.io/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql1.jpg">
-<meta property="og:image" content="https://phpdi.github.io/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql2.png">
-<meta property="og:image" content="https://phpdi.github.io/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql3.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql1.jpg">
+<meta property="og:image" content="https://phpdi.github.io/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql2.png">
+<meta property="og:image" content="https://phpdi.github.io/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql3.png">
 <meta property="article:published_time" content="2020-04-01T09:02:57.597Z">
-<meta property="article:modified_time" content="2021-01-05T09:11:00.516Z">
+<meta property="article:modified_time" content="2021-02-18T02:13:43.254Z">
 <meta property="article:author" content="Chen Yu">
 <meta property="article:tag" content="面试题">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://phpdi.github.io/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql1.jpg">
+<meta name="twitter:image" content="https://phpdi.github.io/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql1.jpg">
 
-<link rel="canonical" href="https://phpdi.github.io/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/">
+<link rel="canonical" href="https://phpdi.github.io/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/">
 
 
 <script id="page-configurations">
@@ -76,7 +76,7 @@
   };
 </script>
 
-  <title>mysql/Mysql面试题 | phpdi</title>
+  <title>interview/Mysql面试题 | phpdi</title>
   
 
 
@@ -217,7 +217,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpeg">
@@ -230,7 +230,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          mysql/Mysql面试题
+          interview/Mysql面试题
         </h2>
 
         <div class="post-meta">
@@ -247,7 +247,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-05 17:11:00" itemprop="dateModified" datetime="2021-01-05T17:11:00+08:00">2021-01-05</time>
+                <time title="修改时间：2021-02-18 10:13:43" itemprop="dateModified" datetime="2021-02-18T10:13:43+08:00">2021-02-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -316,7 +316,7 @@
 <p>Repeatable Read（可重读）：这是MySQL的默认事务隔离级别，它确保同一事务的多个实例在并发读取数据时，会看到同样的数据行。<br>不过理论上，这会导致另一个棘手的问题：幻读 （Phantom Read）。简单的说，幻读指当用户读取某一范围的数据行时，<br>另一个事务又在该范围内插入了新行，当用户再读取该范围的数据行时，会发现有新的“幻影” 行。<br>InnoDB和Falcon存储引擎通过多版本并发控制（MVCC，Multiversion Concurrency Control）机制解决了该问题。</p>
 <p>Serializable（可串行化）：这是最高的隔离级别，它通过强制事务排序，使之不可能相互冲突，从而解决幻读问题。简言之，<br>它是在每个读的数据行上加上共享锁。在这个级别，可能导致大量的超时现象和锁竞争</p>
 <p>这四种隔离级别采取不同的锁类型来实现，若读取的是同一个数据的话，就容易发生问题。例如：脏读(Drity Read)：某个事务已更新一份<br>数据，另一个事务在此时读取了同一份数据，由于某些原因，前一个RollBack了操作，则后一个事务所读取的数据就会是不正确的。<br>不可重复读(Non-repeatable read):在一个事务的两次查询之中数据不一致，这可能是两次查询过程中间插入了一个事务更新的原有的数据。<br>幻读(Phantom Read):在一个事务的两次查询中数据笔数不一致，例如有一个事务查询了几列(Row)数据，而另一个事务却在此时插入了新的几列数据，<br>先前的事务在接下来的查询中，就会发现有几列数据是它先前所没有的。</p>
-<p>在MySQL中，实现了这四种隔离级别，分别有可能产生问题如下所示：<br><img src="/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql1.jpg" alt></p>
+<p>在MySQL中，实现了这四种隔离级别，分别有可能产生问题如下所示：<br><img src="/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql1.jpg" alt></p>
 <h1 id="MySQL-如何高效率随机获取N条数据？"><a href="#MySQL-如何高效率随机获取N条数据？" class="headerlink" title="MySQL 如何高效率随机获取N条数据？"></a>MySQL 如何高效率随机获取N条数据？</h1><h2 id="答案-7"><a href="#答案-7" class="headerlink" title="答案"></a>答案</h2><p>假设表叫做mm_account。<br>ID连续的情况下（注意不能带where，否则结果不好）：  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SELECT *</span><br><span class="line">FROM &#96;mm_account&#96; AS t1 JOIN (SELECT ROUND(RAND() * (SELECT MAX(id) FROM &#96;mm_account&#96;)) AS id) AS t2</span><br><span class="line">WHERE t1.id &gt;&#x3D; t2.id</span><br><span class="line">ORDER BY t1.id ASC LIMIT 4;</span><br></pre></td></tr></table></figure>
 <p>ID不连续的情况下：  </p>
@@ -431,7 +431,7 @@
 <h1 id="MySQL-索引的工作原理及其种类"><a href="#MySQL-索引的工作原理及其种类" class="headerlink" title="MySQL 索引的工作原理及其种类"></a>MySQL 索引的工作原理及其种类</h1><h2 id="数据库索引"><a href="#数据库索引" class="headerlink" title="数据库索引"></a>数据库索引</h2><p>数据库索引，是数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据。索引的实现通常使用B树及其变种B+树。</p>
 <p>在数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式引用（指向）数据，这样就可以在这些数据结构上实现高级查找算法。这种数据结构，就是索引。  </p>
 <p>为表设置索引要付出代价的：一是增加了数据库的存储空间，二是在插入和修改数据时要花费较多的时间(因为索引也要随之变动)。</p>
-<p><img src="/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql2.png" alt><br>图展示了一种可能的索引方式。左边是数据表，一共有两列七条记录，最左边的是数据记录的物理地址（注意逻辑上相邻的记录在磁盘上也并不是一定物理相邻的）。为了加快Col2的查找，可以维护一个右边所示的二叉查找树，每个节点分别包含索引键值和一个指向对应数据记录物理地址的指针，这样就可以运用二叉查找在O(log2n)的复杂度内获取到相应数据。</p>
+<p><img src="/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql2.png" alt><br>图展示了一种可能的索引方式。左边是数据表，一共有两列七条记录，最左边的是数据记录的物理地址（注意逻辑上相邻的记录在磁盘上也并不是一定物理相邻的）。为了加快Col2的查找，可以维护一个右边所示的二叉查找树，每个节点分别包含索引键值和一个指向对应数据记录物理地址的指针，这样就可以运用二叉查找在O(log2n)的复杂度内获取到相应数据。</p>
 <p>创建索引可以大大提高系统的性能。<br>第一，通过创建唯一性索引，可以保证数据库表中每一行数据的唯一性。<br>第二，可以大大加快数据的检索速度，这也是创建索引的最主要的原因。<br>第三，可以加速表和表之间的连接，特别是在实现数据的参考完整性方面特别有意义。<br>第四，在使用分组和排序子句进行数据检索时，同样可以显著减少查询中分组和排序的时间。<br>第五，通过使用索引，可以在查询的过程中，使用优化隐藏器，提高系统的性能。</p>
 <p>也许会有人要问：增加索引有如此多的优点，为什么不对表中的每一个列创建一个索引呢？因为，增加索引也有许多不利的方面。</p>
 <p>第一，创建索引和维护索引要耗费时间，这种时间随着数据量的增加而增加。<br>第二，索引需要占物理空间，除了数据表占数据空间之外，每一个索引还要占一定的物理空间，如果要建立聚簇索引，那么需要的空间就会更大。<br>第三，当对表中的数据进行增加、删除和修改的时候，索引也要动态的维护，这样就降低了数据的维护速度。</p>
@@ -602,7 +602,7 @@
 <h1 id="MySQL-表中有大字段X-例如：text类型-，且字段X不会经常更新，以读为主，请问您是选择拆成子表，还是继续放一起-写出您这样选择的理由"><a href="#MySQL-表中有大字段X-例如：text类型-，且字段X不会经常更新，以读为主，请问您是选择拆成子表，还是继续放一起-写出您这样选择的理由" class="headerlink" title="MySQL 表中有大字段X(例如：text类型)，且字段X不会经常更新，以读为主，请问您是选择拆成子表，还是继续放一起?写出您这样选择的理由"></a>MySQL 表中有大字段X(例如：text类型)，且字段X不会经常更新，以读为主，请问您是选择拆成子表，还是继续放一起?写出您这样选择的理由</h1><h2 id="答案-18"><a href="#答案-18" class="headerlink" title="答案"></a>答案</h2><p>拆带来的问题：连接消耗 + 存储拆分空间；不拆可能带来的问题：查询性能；</p>
 <p>如果能容忍拆分带来的空间问题,拆的话最好和经常要查询的表的主键在物理结构上放置在一起(分区) 顺序IO,减少连接消耗,最后这是一个文本列再加上一个全文索引来尽量抵消连接消耗</p>
 <p>如果能容忍不拆分带来的查询性能损失的话:上面的方案在某个极致条件下肯定会出现问题,那么不拆就是最好的选择</p>
-<h1 id="MySQL如何处理死锁"><a href="#MySQL如何处理死锁" class="headerlink" title="MySQL如何处理死锁?"></a>MySQL如何处理死锁?</h1><h2 id="一、什么是死锁"><a href="#一、什么是死锁" class="headerlink" title="一、什么是死锁"></a>一、什么是死锁</h2><p>官方定义如下：两个事务都持有对方需要的锁，并且在等待对方释放，并且双方都不会释放自己的锁。<br>这个就好比你有一个人质，对方有一个人质，你们俩去谈判说换人。你让对面放人，对面让你放人。<br><img src="/2020/04/01/mysql/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql3.png" alt></p>
+<h1 id="MySQL如何处理死锁"><a href="#MySQL如何处理死锁" class="headerlink" title="MySQL如何处理死锁?"></a>MySQL如何处理死锁?</h1><h2 id="一、什么是死锁"><a href="#一、什么是死锁" class="headerlink" title="一、什么是死锁"></a>一、什么是死锁</h2><p>官方定义如下：两个事务都持有对方需要的锁，并且在等待对方释放，并且双方都不会释放自己的锁。<br>这个就好比你有一个人质，对方有一个人质，你们俩去谈判说换人。你让对面放人，对面让你放人。<br><img src="/2020/04/01/interview/Mysql%E9%9D%A2%E8%AF%95%E9%A2%98/mysql3.png" alt></p>
 <h2 id="二、为什么会形成死锁"><a href="#二、为什么会形成死锁" class="headerlink" title="二、为什么会形成死锁"></a>二、为什么会形成死锁</h2><p>看到这里，也许你会有这样的疑问，事务和谈判不一样，为什么事务不能使用完锁之后立马释放呢？居然还要操作完了之后一直持有锁？这就涉及到 MySQL 的并发控制了。  </p>
 <p>MySQL的并发控制有两种方式，一个是 MVCC，一个是两阶段锁协议。那么为什么要并发控制呢？是因为多个用户同时操作 MySQL 的时候，为了提高并发性能并且要求如同多个用户的请求过来之后如同串行执行的一样（可串行化调度）。具体的并发控制这里不再展开。咱们继续深入讨论两阶段锁协议。  </p>
 <h3 id="两阶段锁协议（2PL）"><a href="#两阶段锁协议（2PL）" class="headerlink" title="两阶段锁协议（2PL）"></a>两阶段锁协议（2PL）</h3><p>官方定义：  </p>
@@ -653,12 +653,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/04/01/mysql/%E9%80%9A%E8%BF%87Docker%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEMySQL%E4%B8%BB%E4%BB%8E%E8%8A%82%E7%82%B9/" rel="prev" title="mysql/通过Docker安装配置MySQL主从节点">
-      <i class="fa fa-chevron-left"></i> mysql/通过Docker安装配置MySQL主从节点
+    <a href="/2020/04/01/linux/%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E5%92%8C%E9%97%AE%E9%A2%98/" rel="prev" title="linux/常用命令和问题">
+      <i class="fa fa-chevron-left"></i> linux/常用命令和问题
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/04/01/mysql/MySQL%E6%8F%90%E5%8D%87%E8%AF%BE%E7%A8%8B%E5%85%A8%E9%9D%A2%E8%AE%B2%E8%A7%A3MySQL%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="next" title="mysql/MySQL提升课程全面讲解MySQL架构设计">
-      mysql/MySQL提升课程全面讲解MySQL架构设计 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/04/01/interview/Redis%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="next" title="interview/Redis面试题">
+      interview/Redis面试题 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -735,7 +735,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-count">50</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -748,7 +748,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">29</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
