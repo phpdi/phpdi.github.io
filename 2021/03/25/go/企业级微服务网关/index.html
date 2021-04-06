@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="baidu-site-verification" content="D033aiBRFi">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://phpdi.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="业级微服务网关-frimicro介绍https:&#x2F;&#x2F;gitee.com&#x2F;phpdi&#x2F;frimicro利用Go优越的性能设计与实现高性能企业级微服务网关 第1章 开篇引导网关应该具备的基本功能 支持多种协议代理：tcp&#x2F;http&#x2F;websocket&#x2F;grpc 支持多种负载均衡策略：轮询、权重轮询、hash一致性 支持下游服务发现：主动探测、自动服务发现 支持横向扩容：加机器就能解决高并发  借助网关">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go&#x2F;企业级微服务网关">
+<meta property="og:url" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/index.html">
+<meta property="og:site_name" content="phpdi">
+<meta property="og:description" content="业级微服务网关-frimicro介绍https:&#x2F;&#x2F;gitee.com&#x2F;phpdi&#x2F;frimicro利用Go优越的性能设计与实现高性能企业级微服务网关 第1章 开篇引导网关应该具备的基本功能 支持多种协议代理：tcp&#x2F;http&#x2F;websocket&#x2F;grpc 支持多种负载均衡策略：轮询、权重轮询、hash一致性 支持下游服务发现：主动探测、自动服务发现 支持横向扩容：加机器就能解决高并发  借助网关">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/osi7%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E6%95%B0%E6%8D%AE%E5%8C%85.png">
+<meta property="og:image" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E6%95%B0%E6%8D%AE%E5%8C%851.png">
+<meta property="og:image" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/4%E6%AC%A1%E6%8C%A5%E6%89%8B.png">
+<meta property="og:image" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6.png">
+<meta property="og:image" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6.png">
+<meta property="og:image" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E7%BD%91%E5%85%B3%E5%AE%9E%E7%8E%B0%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0.png">
+<meta property="article:published_time" content="2021-03-25T03:33:32.173Z">
+<meta property="article:modified_time" content="2021-04-06T02:14:35.555Z">
+<meta property="article:author" content="Chen Yu">
+<meta property="article:tag" content="微服务">
+<meta property="article:tag" content="网络编程">
+<meta property="article:tag" content="7-4到7-7未看">
+<meta property="article:tag" content="8-6都8-8未看">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/osi7%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B.png">
+
+<link rel="canonical" href="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>go/企业级微服务网关 | phpdi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">phpdi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">飞向自由</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpeg">
+      <meta itemprop="name" content="Chen Yu">
+      <meta itemprop="description" content="自律给我自由">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="phpdi">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          go/企业级微服务网关
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-25 11:33:32" itemprop="dateCreated datePublished" datetime="2021-03-25T11:33:32+08:00">2021-03-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-06 10:14:35" itemprop="dateModified" datetime="2021-04-06T10:14:35+08:00">2021-04-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index">
+                    <span itemprop="name">go</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="业级微服务网关-frimicro"><a href="#业级微服务网关-frimicro" class="headerlink" title="业级微服务网关-frimicro"></a>业级微服务网关-frimicro</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><a href="https://gitee.com/phpdi/frimicro" target="_blank" rel="noopener">https://gitee.com/phpdi/frimicro</a><br>利用Go优越的性能<br>设计与实现高性能企业级微服务网关</p>
+<h2 id="第1章-开篇引导"><a href="#第1章-开篇引导" class="headerlink" title="第1章 开篇引导"></a>第1章 开篇引导</h2><h3 id="网关应该具备的基本功能"><a href="#网关应该具备的基本功能" class="headerlink" title="网关应该具备的基本功能"></a>网关应该具备的基本功能</h3><ul>
+<li>支持多种协议代理：tcp/http/websocket/grpc</li>
+<li>支持多种负载均衡策略：轮询、权重轮询、hash一致性</li>
+<li>支持下游服务发现：主动探测、自动服务发现</li>
+<li>支持横向扩容：加机器就能解决高并发</li>
+</ul>
+<h3 id="借助网关处理高可用、高并发"><a href="#借助网关处理高可用、高并发" class="headerlink" title="借助网关处理高可用、高并发"></a>借助网关处理高可用、高并发</h3><ul>
+<li>限流：请求QPS限制</li>
+<li>熔断：错误率达阈值则服务熔断</li>
+<li>降级：确保核心业务可用</li>
+<li>权限认证：请求拦截</li>
+</ul>
+<h2 id="第2章-扫盲网关前置技术：必备网络基础"><a href="#第2章-扫盲网关前置技术：必备网络基础" class="headerlink" title="第2章 扫盲网关前置技术：必备网络基础"></a>第2章 扫盲网关前置技术：必备网络基础</h2><h3 id="OSI7层网络模型"><a href="#OSI7层网络模型" class="headerlink" title="OSI7层网络模型"></a>OSI7层网络模型</h3><p><img src="/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/osi7%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B.png" alt></p>
+<h3 id="经典协议与数据包"><a href="#经典协议与数据包" class="headerlink" title="经典协议与数据包"></a>经典协议与数据包</h3><p><img src="/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E6%95%B0%E6%8D%AE%E5%8C%85.png" alt><br><img src="/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E6%95%B0%E6%8D%AE%E5%8C%851.png" alt></p>
+<h3 id="TCP为啥需要三次握手、四次挥手"><a href="#TCP为啥需要三次握手、四次挥手" class="headerlink" title="TCP为啥需要三次握手、四次挥手"></a>TCP为啥需要三次握手、四次挥手</h3><p>序号（sequence number）：Seq序号，占32位，用来标识从TCP源端向目的端发送的字节流，发起方发送数据时对此进行标记。<br>确认号（acknowledgement number）：Ack序号，占32位，只有ACK标志位为1时，确认序号字段才有效，Ack=Seq+1。  </p>
+<table>
+<thead>
+<tr>
+<th align="center">标记</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">URG</td>
+<td align="center">Urgent:紧急位,URG=1,表示紧急数据</td>
+</tr>
+<tr>
+<td align="center">ACK</td>
+<td align="center">Acknowledgement:确认位,ACK=1,确认号才生效</td>
+</tr>
+<tr>
+<td align="center">PSH</td>
+<td align="center">Push:推送位,PSH=1,尽快吧数据交付给应用层</td>
+</tr>
+<tr>
+<td align="center">PST</td>
+<td align="center">Reset:重置位,RST=1,重新建立连接</td>
+</tr>
+<tr>
+<td align="center">SYN</td>
+<td align="center">Synchronization:同步位,SYN=1表示连接请求报文</td>
+</tr>
+<tr>
+<td align="center">FIN</td>
+<td align="center">Finish:终止位,FIN=1表示释放连接</td>
+</tr>
+</tbody></table>
+<h4 id="三次握手的过程"><a href="#三次握手的过程" class="headerlink" title="三次握手的过程"></a>三次握手的过程</h4><ol>
+<li>发送方 发送: SYN=1,seq=x </li>
+<li>接收方 回应: SYN=1,seq=y,ack=x+1</li>
+<li>发送方 发送: ACK=1,seq=x+1,ack=y+1</li>
+</ol>
+<h4 id="为什么需要三次握手"><a href="#为什么需要三次握手" class="headerlink" title="为什么需要三次握手"></a>为什么需要三次握手</h4><p>已经失效的连接请求报文传送到对方,引起错误<br>如果不进行第三次握手,就会导致一个现象,发送方发送的连接请求由于网络原因(超时重传),发送多个连接请求,导致建立多个连接.</p>
+<h4 id="为什么建立连接协议是三次握手，而关闭连接却是四次握手呢？"><a href="#为什么建立连接协议是三次握手，而关闭连接却是四次握手呢？" class="headerlink" title="为什么建立连接协议是三次握手，而关闭连接却是四次握手呢？"></a>为什么建立连接协议是三次握手，而关闭连接却是四次握手呢？</h4><p>这是因为服务端的LISTEN状态下的SOCKET当收到SYN报文的建连请求后，它可以把ACK和SYN（ACK起应答作用，而SYN起同步作用）放在一个报文里来发送。<br>但关闭连接时，当收到对方的FIN报文通知时，它仅仅表示对方没有数据发送给你了；但未必你所有的数据都全部发送给对方了，所以你可以未必会马上会关闭SOCKET,也即你可能还需要发送一些数据给对方之后，再发送FIN报文给对方来表示你同意可以关闭连接了，所以它这里的ACK报文和FIN报文多数情况下都是分开发送的。</p>
+<h4 id="抓包分析三次握手和四次挥手"><a href="#抓包分析三次握手和四次挥手" class="headerlink" title="抓包分析三次握手和四次挥手"></a>抓包分析三次握手和四次挥手</h4><p><img src="/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/4%E6%AC%A1%E6%8C%A5%E6%89%8B.png" alt></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tcpdump -n -S -i enp0s31f6 host www.baidu.com and tcp port 80</span><br></pre></td></tr></table></figure>
+<h4 id="为啥time-wait需要等待2msl"><a href="#为啥time-wait需要等待2msl" class="headerlink" title="为啥time_wait需要等待2msl"></a>为啥time_wait需要等待2msl</h4><ul>
+<li>msl: 最长包的传输时间（30秒-1分钟）</li>
+<li>保证TCP 协议的全双工连接可以可靠关闭</li>
+<li>保证这次连接的重复数据段从网络中消失</li>
+</ul>
+<h4 id="为啥会出现大量的close-wait"><a href="#为啥会出现大量的close-wait" class="headerlink" title="为啥会出现大量的close_wait?"></a>为啥会出现大量的close_wait?</h4><ul>
+<li>首先close_wait一般出现在被动关闭方</li>
+<li>并发请求太多导致</li>
+<li>被动关闭方未及时释放端口资源导致</li>
+</ul>
+<h4 id="TCP为啥需要流量控制？"><a href="#TCP为啥需要流量控制？" class="headerlink" title="TCP为啥需要流量控制？"></a>TCP为啥需要流量控制？</h4><ul>
+<li>由于通讯双方，网速不同，通讯方任一方发送过快都会导致对方消息处理不过来，所以就需要吧数据放到缓冲区中  </li>
+<li>如果缓冲区满了，发送方还在疯狂发送，那接收方只能吧数据包丢弃，因此我们需要控制发送速率。</li>
+<li>我们缓冲区剩余大小称之为接收窗口，用变量win表示，如果接收方的win=0,则发送方停止发送<br><img src="/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6.png" alt></li>
+</ul>
+<h3 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h3><ul>
+<li>流量控制考虑点对点的通信量的控制</li>
+<li>拥塞控制考虑整个网络,是全局性的考虑</li>
+</ul>
+<h4 id="TCP为啥需要拥塞控制"><a href="#TCP为啥需要拥塞控制" class="headerlink" title="TCP为啥需要拥塞控制"></a>TCP为啥需要拥塞控制</h4><ul>
+<li>流量控制和拥塞控制是两个概念，拥塞控制是调节网络的负载</li>
+<li>接收方网络资源繁忙，因未及时响应ack导致发送方重传大量数据，这样将导致网络更加拥塞</li>
+<li>拥塞控制是动态调整win大小，不只是依赖缓冲区大小确定窗口</li>
+</ul>
+<h4 id="TCP拥塞控制"><a href="#TCP拥塞控制" class="headerlink" title="TCP拥塞控制"></a>TCP拥塞控制</h4><p>tcp 拥塞控制包括2部分  </p>
+<ul>
+<li>慢开始和拥塞避免</li>
+<li>快速重传和快速恢复 （如果收到三个重复的ack,执行快速重传，当前窗口值变为原来的一半）<br><img src="/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6.png" alt></li>
+</ul>
+<h3 id="TCP粘包、拆包"><a href="#TCP粘包、拆包" class="headerlink" title="TCP粘包、拆包"></a>TCP粘包、拆包</h3><h4 id="为什么会出现粘包、拆包"><a href="#为什么会出现粘包、拆包" class="headerlink" title="为什么会出现粘包、拆包?"></a>为什么会出现粘包、拆包?</h4><ul>
+<li>应用程序写入的数据大于套接字缓冲区大小，这将会发生拆包</li>
+<li>应用程序写入数据小于套接字缓冲区大小，网卡将应用多次写入的数据发送到网络上，这将会发生粘包</li>
+<li>进行MSS(最大报文长度)大小的TCP分段，当“TCP报文长度-TCP头部长度&gt;MSS”的时候将发生彩镖</li>
+<li>接收方法不及时读取套接字缓冲区数据，这将发生粘包</li>
+</ul>
+<h4 id="如何获取完整应用数据报文"><a href="#如何获取完整应用数据报文" class="headerlink" title="如何获取完整应用数据报文?"></a>如何获取完整应用数据报文?</h4><ul>
+<li>使用带消息头的协议，头部写入包长度，然后再读取包内容</li>
+<li>设置定长消息，每次读取定长内容，长度不够时空位补齐固定字符</li>
+<li>设置消息边界，服务端从网络流中按消息边界分离消息内容，一般使用‘\n’</li>
+<li>更为复杂的协议，例如 json,protobuf</li>
+</ul>
+<h3 id="忘记关闭连接会怎么样？"><a href="#忘记关闭连接会怎么样？" class="headerlink" title="忘记关闭连接会怎么样？"></a>忘记关闭连接会怎么样？</h3><p>linux 检查端口状态</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br></pre></td><td class="code"><pre><span class="line">&#96;&#96;&#96;</span><br><span class="line">#### 客户端忘记关连接</span><br><span class="line">如果进程不退出的话  </span><br><span class="line">客户端占用的端口会一直处于连接状态，资源不会被释放。  </span><br><span class="line">服务端和客户端的tcp连接都处于ESTABLISHED 状态,直到tcp探活机制触发，才能释放资源</span><br><span class="line"></span><br><span class="line">#### 服务端忘记关连接</span><br><span class="line">如果进程不退出的话</span><br><span class="line">服务端会一直处于CLOSE_WAIT状态，由于没有给客户端发送FIN包，客户端会处于FIN_WAIT_2状态,直到tcp探活机制触发，才能释放资源</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#### golang http客户端超时时间设置</span><br><span class="line">![](企业级微服务网关&#x2F;httpclienttimeout.png)</span><br><span class="line"></span><br><span class="line">## 第3章 网络代理之HTTP代理*基础篇</span><br><span class="line"></span><br><span class="line">### 网络代理和转发的区别</span><br><span class="line">#### 什么是网络代理</span><br><span class="line">* 用户通过代理请求信息</span><br><span class="line">* 请求通过网络代理完成转发到达目标服务器</span><br><span class="line">* 目标服务器相应后再通过网络代理回传给用户</span><br><span class="line">![](企业级微服务网关&#x2F;网络代理.png)</span><br><span class="line"></span><br><span class="line">#### 网络转发</span><br><span class="line">![](企业级微服务网关&#x2F;网络转发.png)</span><br><span class="line"></span><br><span class="line">#### 比较</span><br><span class="line">* 网络代理 用户不直接连接服务器，网络代理去连接，获取数据后返回给用户</span><br><span class="line">* 网络转发 是路由器对报文的转发操作，中间可能对数据包进行修改</span><br><span class="line"></span><br><span class="line">### 网络代理类型</span><br><span class="line">1. 正向代理</span><br><span class="line">是客户端的一种代理技术，帮助客户端访问无法访问的服务资源，可以隐藏用户真实ip,比如：浏览器web代理，VPN等</span><br><span class="line">2. 反向代理</span><br><span class="line">是一种服务端的代理技术，帮服务器做负载均衡、缓存、提供安全校验，可以隐藏服务器真实ip,比如：LVS技术，nginx proxy_pass等</span><br><span class="line"></span><br><span class="line">#### web浏览器代理</span><br><span class="line">* 代理接收客户端请求，复制原请求对象，并根据数据配置新请求各种参数</span><br><span class="line">* 把新请求发送到真实服务端，并收到服务器端返回</span><br><span class="line">* 代理服务器对响应做一些处理，然后返回给客户端</span><br><span class="line"></span><br><span class="line">### 反向代理</span><br><span class="line">* 代理客户端请求，更改请求结构体信息</span><br><span class="line">* 通过一定的负载均衡算法获取下游服地址</span><br><span class="line">* 把请求发送到下游服务器，并获取返回内容</span><br><span class="line">* 对返回内容做一些处理，然后返回给客户端</span><br><span class="line"></span><br><span class="line">### ReverseProxy 功能点</span><br><span class="line">* 更改内容支持</span><br><span class="line">* 错误信息回调</span><br><span class="line">* 支持自定义负载均衡</span><br><span class="line">* url重写功能</span><br><span class="line">* 连接池功能</span><br><span class="line">* 支持websocket服务</span><br><span class="line">* 支持https代理</span><br><span class="line"></span><br><span class="line">#### ReverseProxy 补充知识-特殊的Header头</span><br><span class="line"></span><br><span class="line">##### 特殊的Header头</span><br><span class="line">* &quot;X-Forwarded-For&quot; 客户端ip,反向代理服务端ip列表,可能会被伪造</span><br><span class="line">* &quot;X-Real-IP&quot; 实际请求的客户端ip，每过一层代理都会被覆盖掉，只需要第一代理设置转发</span><br><span class="line">* &quot;Connection&quot; 描述连接，关闭、长连接等</span><br><span class="line">* &quot;TE&quot; 客户端希望的传输类型</span><br><span class="line">* &quot;Trailer&quot; 允许发送方在消息后面添加的一些源信息，例如超时时间等</span><br><span class="line"></span><br><span class="line">##### 第一代理除去标准的逐段传输头（hop-by-hop）</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#### ReverseProxy源码分析</span><br><span class="line"></span><br><span class="line">##### 核心方法ServeHTTP</span><br><span class="line">1. 验证是否请求终止</span><br><span class="line">2. 设置请求ctx信息</span><br><span class="line">3. 深拷贝header</span><br><span class="line">4. 修改req</span><br><span class="line">5. Upgrade头的特殊处理</span><br><span class="line">6. 追加clientIp信息</span><br><span class="line">7. 向下游请求数据</span><br><span class="line">8. 处理升级协议请求</span><br><span class="line">9. 移除逐段头部</span><br><span class="line">10. 修改返回内容</span><br><span class="line">11. 写入状态码</span><br><span class="line">12. 周期刷新内容到response</span><br><span class="line"></span><br><span class="line">##### 4大负载均衡策略</span><br><span class="line">随机、轮询、加权、一致性哈希</span><br><span class="line"></span><br><span class="line">##### 加权轮询  </span><br><span class="line">参数  </span><br><span class="line">* Weight 初始化时对节点约束的权重</span><br><span class="line">* currentWeight 节点临时权重，每轮都会变化</span><br><span class="line">* effectiveWeight 节点有效权重，默认与weight相同</span><br><span class="line">* totalWeight 所有节点有效权重之和 sum(effectiveWeight)</span><br><span class="line">策略(参考nginx加权策略)  </span><br><span class="line">1. currentWeight&#x3D;currentWeight+effectiveWeight</span><br><span class="line">2. 选中最大的currentWeight节点为选中节点</span><br><span class="line">3. currentWeight&#x3D;currentWeight-totalWeight</span><br><span class="line"></span><br><span class="line">##### 一致性哈希  </span><br><span class="line">1. 一致性hash,将所有对象映射到环空间上  </span><br><span class="line">2. 引入虚拟节点解决少量节点的情况下分布不均衡问题</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 第4章 网络代理制HTTP代理*进阶篇</span><br><span class="line">### 开发一个中间件</span><br><span class="line">#### 中间件的意义</span><br><span class="line">* 避免成为if狂魔</span><br><span class="line">* 提高复用、隔离业务</span><br><span class="line">* 调用清晰、组合随意</span><br><span class="line">#### 中间件的实现原理</span><br><span class="line">洋葱结构 </span><br><span class="line">![](企业级微服务网关&#x2F;中间件原理.png)</span><br><span class="line">以上中间件依次为:  </span><br><span class="line">1. 错误拦截</span><br><span class="line">2. 缓存中间件</span><br><span class="line">3. 会话中间件</span><br><span class="line">4. 路由中间件</span><br><span class="line"></span><br><span class="line">#### 中间件代码实现</span><br><span class="line">* 中间件一般都封装在路由上，路由是Url请求分发的管理器</span><br><span class="line">* 中间件选型</span><br><span class="line">    * 基于链表构建的中间件。缺点：实现复杂，调用方式不灵活</span><br><span class="line">    * 使用数组构建中间件。控制灵活方便，推荐使用</span><br><span class="line">    </span><br><span class="line">#### 实现思路</span><br><span class="line">##### 方法组装</span><br><span class="line">1. 构建中间件的路由</span><br><span class="line">2. 构建URL的中间件方法数组</span><br><span class="line">3. 使用use方法整合路由与方法数组</span><br><span class="line">##### 方法调用</span><br><span class="line">1. 构建方法请求逻辑</span><br><span class="line">2. 封装http.Handler接口与http.Server整合</span><br><span class="line">    </span><br><span class="line">### 限流</span><br><span class="line">#### 高并发系统三大利器： 缓存、降级、限流  </span><br><span class="line">* 缓存：提升系统访问速度和增大处理容量，为相应业务增加缓存</span><br><span class="line">* 降级：当服务器压力剧增时，根据业务策略降级，以此释放服务资源保证业务正常</span><br><span class="line">* 限流：通过并发限速，以达到拒绝服务，排队或等待、降级处理</span><br><span class="line">#### 限流分类</span><br><span class="line">* 漏桶限流 每次请求时计算桶流量，超过阀值则降级请求</span><br><span class="line">* 令牌桶限流 每次请求时从令牌桶取令牌，取不到则降级请求</span><br><span class="line"></span><br><span class="line">### time&#x2F;rate 限速器的使用</span><br><span class="line">* rate.NewLimiter(limit,burst) limit 表示每秒产生token数量、burst最多存token数</span><br><span class="line">    * burst 意味着最大并发数</span><br><span class="line">    * limit 意味着流速，流速快，允许相同时间段内，接受更多的请求</span><br><span class="line">* Allow 判定当前是否可以取到token (此方法最为常用)</span><br><span class="line">* Wait 阻塞等待直到取到token</span><br><span class="line">* Reserve 返回等待时间、再去取token</span><br><span class="line"></span><br><span class="line">### 熔断与降级</span><br><span class="line">熔断的意义  </span><br><span class="line">熔断器是当依赖的服务已经出现故障时，为了保证自身服务的正常运行不再访问依赖的服务，防止雪崩效应  </span><br><span class="line">降级意义  </span><br><span class="line">当服务器压力剧增时，根据业务策略降级，以此释放服务资源保证业务正常  </span><br><span class="line"></span><br><span class="line">#### 熔断状态</span><br><span class="line">* 关闭状态  </span><br><span class="line">服务正常，维护失败率统计，达到失败率阀值时，转到开启状态。  </span><br><span class="line">* 开启状态  </span><br><span class="line">服务异常，调用fallback函数，一段时间后，进入半开启状态。  </span><br><span class="line">* 半开启状态  </span><br><span class="line">尝试恢复服务，失败率高于阀值，进入半开启状态，低于阀值，进入关闭状态。</span><br><span class="line"></span><br><span class="line">#### 降级策略</span><br><span class="line">* 使用缓存</span><br><span class="line">* 提示错误</span><br><span class="line"></span><br><span class="line">#### 熔断器原理</span><br><span class="line">![](企业级微服务网关&#x2F;熔断器原理.png)</span><br><span class="line"></span><br><span class="line">### hystrix-go类库</span><br><span class="line">hystrix-go 是熔断、降级、限流集成类库</span><br><span class="line"></span><br><span class="line">## 第5章 实时通讯websocket+安全加密https</span><br><span class="line"></span><br><span class="line">### websocket 协议</span><br><span class="line">#### Header意义</span><br><span class="line">* 标记请求发起方和第一代理的状态</span><br><span class="line">* 决定当前事务完成后，是否会关闭网络</span><br><span class="line">    * Connection:keep-alive 保持长连接（http1.1 默认参数）</span><br><span class="line">    * Connection:close 关闭连接</span><br><span class="line">    * Connection:Upgrade 协议升级</span><br><span class="line">* 当有多个代理服务器的时候，http长连接是代理服务器之间两两保持的    </span><br><span class="line"></span><br><span class="line">### https与http2代理</span><br><span class="line">https是http安全版，http2是一种传输协议，两者没有本质联系    </span><br><span class="line"></span><br><span class="line">#### http2</span><br><span class="line">* http2 采用二进制格式而非文本格式</span><br><span class="line">* http2 使用一个连接可使用多路复用</span><br><span class="line">* 使用报头压缩，http2降低了开销</span><br><span class="line">* http2让服务器可以将响应主动推送到客户端缓存</span><br><span class="line">#### http2与https的关系</span><br><span class="line">* http2代表多路复用的传输协议</span><br><span class="line">* https代表http服务器使用了加密传输</span><br><span class="line">* 一个启用https的服务器不一定使用http2</span><br><span class="line">* 使用http2的服务器必须启用https（浏览器强制）</span><br><span class="line"></span><br><span class="line">### golang服务器支持https与http2</span><br><span class="line">* ListenAndServe 调整成ListenAndServeTLS即可支持https</span><br><span class="line">* https服务器设置http2.ConfigureServer支持http2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 第6章 四层tcp代理 【兼顾上层协议】</span><br><span class="line">### 四层代理和七层代理的区别</span><br><span class="line">* 实际是路由转发（4层代理）和反向代理（7层代理）的区别</span><br><span class="line">* 转发客户端与服务器只会有一次三次握手，而代理有两次</span><br><span class="line">* NAT是作用于内核运行的，代理是用户程序运行的</span><br><span class="line">* 代理的数据会进入程序buffer中</span><br><span class="line">### tcp代理原理</span><br><span class="line">* 本质还是7层反向代理，只是代理内容是tcp协议包</span><br><span class="line">* 初始化tcp服务器</span><br><span class="line">* 创建上游连接</span><br><span class="line">* 创建下游连接</span><br><span class="line">* 上下游连接数据交换</span><br><span class="line"></span><br><span class="line">### 构建一个tcp服务器</span><br><span class="line">* 监听服务</span><br><span class="line">* 获取构建新连接对象并设置超时时间及keepalive</span><br><span class="line">* 设置方法退出时连接关闭</span><br><span class="line">* 调用回调接口 TcpHandler</span><br><span class="line"></span><br><span class="line">### 构建一个tcp反向代理</span><br><span class="line">* 代理实现TcpHandler回调方法结构</span><br><span class="line">* 连接下游服务</span><br><span class="line">* 设置退出时关闭连接</span><br><span class="line">* 一边读数据一边写数据</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">### tcp代理特点</span><br><span class="line">* 流式数据及无状态数据推荐使用</span><br><span class="line">* 对服务控制比较少，只能做流量控制及请求来源控制</span><br><span class="line">* 如果有对应协议代理推荐使用对应协议的代理</span><br><span class="line"></span><br><span class="line">### thrift 代理测试</span><br><span class="line">#### 介绍</span><br><span class="line">Thrift是一个轻量级、跨语言的远程服务调用框架，最初由Facebook开发，后面进入Apache开源项目。它通过自身的IDL中间语言, 并借助代码生成引擎生成各种主流语言的RPC服务端&#x2F;客户端模板代码。  </span><br><span class="line">thrift就是一个rpc框架，类似于grpc  </span><br><span class="line">Thrift的网络协议建立在TCP协议基础上</span><br><span class="line">#### 安装</span><br><span class="line">参照：https:&#x2F;&#x2F;thrift.apache.org&#x2F;docs&#x2F;install</span><br></pre></td></tr></table></figure>
+<p>sudo apt-get install automake bison flex g++ git libboost-all-dev libevent-dev libssl-dev libtool make pkg-configex<br>sudo apt install thrift-compiler</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#### 测试</span><br><span class="line">1. 编写thrift_gen.thrift</span><br><span class="line">2. 运行IDL生成命令</span><br></pre></td></tr></table></figure>
+<p>thrift –gen go thrift_gen.thrift</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">3. 使用生成的IDL单独构建 server与client即可</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 第7章 支持炫酷的grpc透明代理</span><br><span class="line"></span><br><span class="line">### 构建grpc-gateway 测试服务端，让服务器支持http</span><br><span class="line">地址  </span><br><span class="line">https:&#x2F;&#x2F;github.com&#x2F;grpc-ecosystem&#x2F;grpc-gateway</span><br><span class="line"></span><br><span class="line">#### 安装</span><br></pre></td></tr></table></figure>
+<p> go get <br>    github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway <br>    github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 <br>    google.golang.org/protobuf/cmd/protoc-gen-go <br>    google.golang.org/grpc/cmd/protoc-gen-go-grpc</p>
+<p>```</p>
+<h2 id="第8章-网关拓展服务发现功能"><a href="#第8章-网关拓展服务发现功能" class="headerlink" title="第8章 网关拓展服务发现功能"></a>第8章 网关拓展服务发现功能</h2><h3 id="网关实现客户端服务发现"><a href="#网关实现客户端服务发现" class="headerlink" title="网关实现客户端服务发现"></a>网关实现客户端服务发现</h3><p><img src="/2021/03/25/go/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/%E7%BD%91%E5%85%B3%E5%AE%9E%E7%8E%B0%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0.png" alt></p>
+<h3 id="zookeeper"><a href="#zookeeper" class="headerlink" title="zookeeper"></a>zookeeper</h3><h4 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h4><ul>
+<li>是一个分布式数据库，Hadoop子项目</li>
+<li>树状方式维护节点方数据的增删改查</li>
+<li>监听通知机制:通过监听可以获取相应的消息事件<h4 id="zookeeper-节点类型"><a href="#zookeeper-节点类型" class="headerlink" title="zookeeper 节点类型"></a>zookeeper 节点类型</h4></li>
+<li>持久节点：一直存在服务器上</li>
+<li>临时节点：会话失效，节点自动清理</li>
+<li>顺序节点：节点创建，自动分配序列号</li>
+</ul>
+<h4 id="go-package"><a href="#go-package" class="headerlink" title="go package"></a>go package</h4><p>github.com/samuel/go-zookeeper</p>
+<h2 id="第10章-项目实战之后台管理后端功能"><a href="#第10章-项目实战之后台管理后端功能" class="headerlink" title="第10章 项目实战之后台管理后端功能"></a>第10章 项目实战之后台管理后端功能</h2><h3 id="数据库表整理与创建：设计原则"><a href="#数据库表整理与创建：设计原则" class="headerlink" title="数据库表整理与创建：设计原则"></a>数据库表整理与创建：设计原则</h3><h4 id="三大范式"><a href="#三大范式" class="headerlink" title="三大范式"></a>三大范式</h4><ul>
+<li>第一范式：要求有主键，并且要求每一个字段原子性不可再分</li>
+<li>第二范式：要求所有非主键字段完全依赖主键，不能产生部分依赖</li>
+<li>第三范式：所有非主键字段和主键字段之间不能产生传递依赖</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag"># 网络编程</a>
+              <a href="/tags/7-4%E5%88%B07-7%E6%9C%AA%E7%9C%8B/" rel="tag"># 7-4到7-7未看</a>
+              <a href="/tags/8-6%E9%83%BD8-8%E6%9C%AA%E7%9C%8B/" rel="tag"># 8-6都8-8未看</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/25/go/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/" rel="prev" title="go/工作中遇到的问题">
+      <i class="fa fa-chevron-left"></i> go/工作中遇到的问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/25/go/go%E5%AD%A6%E4%B9%A0%E4%B9%A6%E7%B1%8D/" rel="next" title="go/go学习书籍">
+      go/go学习书籍 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#业级微服务网关-frimicro"><span class="nav-number">1.</span> <span class="nav-text">业级微服务网关-frimicro</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第1章-开篇引导"><span class="nav-number">1.2.</span> <span class="nav-text">第1章 开篇引导</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#网关应该具备的基本功能"><span class="nav-number">1.2.1.</span> <span class="nav-text">网关应该具备的基本功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#借助网关处理高可用、高并发"><span class="nav-number">1.2.2.</span> <span class="nav-text">借助网关处理高可用、高并发</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第2章-扫盲网关前置技术：必备网络基础"><span class="nav-number">1.3.</span> <span class="nav-text">第2章 扫盲网关前置技术：必备网络基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OSI7层网络模型"><span class="nav-number">1.3.1.</span> <span class="nav-text">OSI7层网络模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#经典协议与数据包"><span class="nav-number">1.3.2.</span> <span class="nav-text">经典协议与数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP为啥需要三次握手、四次挥手"><span class="nav-number">1.3.3.</span> <span class="nav-text">TCP为啥需要三次握手、四次挥手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#三次握手的过程"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">三次握手的过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么需要三次握手"><span class="nav-number">1.3.3.2.</span> <span class="nav-text">为什么需要三次握手</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么建立连接协议是三次握手，而关闭连接却是四次握手呢？"><span class="nav-number">1.3.3.3.</span> <span class="nav-text">为什么建立连接协议是三次握手，而关闭连接却是四次握手呢？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#抓包分析三次握手和四次挥手"><span class="nav-number">1.3.3.4.</span> <span class="nav-text">抓包分析三次握手和四次挥手</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为啥time-wait需要等待2msl"><span class="nav-number">1.3.3.5.</span> <span class="nav-text">为啥time_wait需要等待2msl</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为啥会出现大量的close-wait"><span class="nav-number">1.3.3.6.</span> <span class="nav-text">为啥会出现大量的close_wait?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCP为啥需要流量控制？"><span class="nav-number">1.3.3.7.</span> <span class="nav-text">TCP为啥需要流量控制？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拥塞控制"><span class="nav-number">1.3.4.</span> <span class="nav-text">拥塞控制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#TCP为啥需要拥塞控制"><span class="nav-number">1.3.4.1.</span> <span class="nav-text">TCP为啥需要拥塞控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCP拥塞控制"><span class="nav-number">1.3.4.2.</span> <span class="nav-text">TCP拥塞控制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP粘包、拆包"><span class="nav-number">1.3.5.</span> <span class="nav-text">TCP粘包、拆包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么会出现粘包、拆包"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">为什么会出现粘包、拆包?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何获取完整应用数据报文"><span class="nav-number">1.3.5.2.</span> <span class="nav-text">如何获取完整应用数据报文?</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#忘记关闭连接会怎么样？"><span class="nav-number">1.3.6.</span> <span class="nav-text">忘记关闭连接会怎么样？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第8章-网关拓展服务发现功能"><span class="nav-number">1.4.</span> <span class="nav-text">第8章 网关拓展服务发现功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#网关实现客户端服务发现"><span class="nav-number">1.4.1.</span> <span class="nav-text">网关实现客户端服务发现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#zookeeper"><span class="nav-number">1.4.2.</span> <span class="nav-text">zookeeper</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍-1"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#zookeeper-节点类型"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">zookeeper 节点类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#go-package"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">go package</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第10章-项目实战之后台管理后端功能"><span class="nav-number">1.5.</span> <span class="nav-text">第10章 项目实战之后台管理后端功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库表整理与创建：设计原则"><span class="nav-number">1.5.1.</span> <span class="nav-text">数据库表整理与创建：设计原则</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#三大范式"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">三大范式</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chen Yu"
+      src="/images/head.jpeg">
+  <p class="site-author-name" itemprop="name">Chen Yu</p>
+  <div class="site-description" itemprop="description">自律给我自由</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+<div>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv" style='display:none'>
+    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    <span class="post-meta-divider">|</span>
+</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+    有<span id="busuanzi_value_site_uv"></span>人看过我的博客啦
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
