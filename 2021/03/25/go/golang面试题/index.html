@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="baidu-site-verification" content="D033aiBRFi">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://phpdi.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="golang 调度 CSP(通信顺序进程) 顺序一致性模型  1.Go语言中，同一个Goroutine线程内部，顺序一致性内存模型是得到保证的;  2.不同的Goroutine之间，并不满足顺序一致性内存模型，需要通过明确定义的同步事件来作为同步的参考">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go&#x2F;golang面试题">
+<meta property="og:url" content="https://phpdi.github.io/2021/03/25/go/golang%E9%9D%A2%E8%AF%95%E9%A2%98/index.html">
+<meta property="og:site_name" content="phpdi">
+<meta property="og:description" content="golang 调度 CSP(通信顺序进程) 顺序一致性模型  1.Go语言中，同一个Goroutine线程内部，顺序一致性内存模型是得到保证的;  2.不同的Goroutine之间，并不满足顺序一致性内存模型，需要通过明确定义的同步事件来作为同步的参考">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-25T03:33:32.161Z">
+<meta property="article:modified_time" content="2021-03-25T03:33:32.161Z">
+<meta property="article:author" content="Chen Yu">
+<meta property="article:tag" content="goland面试题">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://phpdi.github.io/2021/03/25/go/golang%E9%9D%A2%E8%AF%95%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>go/golang面试题 | phpdi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">phpdi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">飞向自由</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2021/03/25/go/golang%E9%9D%A2%E8%AF%95%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpeg">
+      <meta itemprop="name" content="Chen Yu">
+      <meta itemprop="description" content="自律给我自由">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="phpdi">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          go/golang面试题
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-25 11:33:32" itemprop="dateCreated datePublished" datetime="2021-03-25T11:33:32+08:00">2021-03-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index">
+                    <span itemprop="name">go</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="golang-调度"><a href="#golang-调度" class="headerlink" title="golang 调度"></a>golang 调度</h2><ul>
+<li>CSP(通信顺序进程)</li>
+<li>顺序一致性模型 <blockquote>
+<p>1.Go语言中，同一个Goroutine线程内部，顺序一致性内存模型是得到保证的;<br>  2.不同的Goroutine之间，并不满足顺序一致性内存模型，需要通过明确定义的同步事件来作为同步的参考</p>
+</blockquote>
+<a id="more"></a></li>
+<li>Goroutine采用的是半抢占式的协作调度，只有在当前Goroutine发生阻塞时才会导致调度 。以下是可能导致调度的点 <blockquote>
+<p>1.I/O,select<br>  2.channel<br>  3.等待锁<br>  4.函数调用（有时）<br>  5.runtime.Gosched(),由程序主动交出控制权</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="go-结构体能不能进行比较"><a href="#go-结构体能不能进行比较" class="headerlink" title="go 结构体能不能进行比较"></a>go 结构体能不能进行比较</h2><ul>
+<li>如果结构体的所有成员变量都是可以比较的，那么结构体就可以比较</li>
+<li>结构体之间进行转换需要他们具备完全相同的成员（字段名，字段类型，字段个数）</li>
+<li>切片，map不能进行比较</li>
+</ul>
+<h2 id="结构体可以作为map的key吗"><a href="#结构体可以作为map的key吗" class="headerlink" title="结构体可以作为map的key吗"></a>结构体可以作为map的key吗</h2><ul>
+<li>结构体必须是可以比较的，才能作为key，否则编译报错</li>
+</ul>
+<h2 id="go-defer-先进后出，栈结构"><a href="#go-defer-先进后出，栈结构" class="headerlink" title="go defer 先进后出，栈结构"></a>go defer 先进后出，栈结构</h2><h2 id="select作用"><a href="#select作用" class="headerlink" title="select作用"></a>select作用</h2><ul>
+<li>用于监听和channel有关的IO操作，当IO操作触发时，触发相应的动作</li>
+<li>所有的channel表达式都会被求值，所有被发送的表达式都会被求值，求值顺序：自上而下，从左到右</li>
+<li>select常用于协程的安全退出</li>
+</ul>
+<h2 id="context包"><a href="#context包" class="headerlink" title="context包"></a>context包</h2><ul>
+<li>context 一般理解为程序单元（goroutine）的一个运行状态，现场，快照,通过context将当前程序的状态传递给下（goroutine）</li>
+<li>context 常用于将过期或者撤销的信号传递给被调用的程序单元</li>
+</ul>
+<h2 id="主协成如何等待其余协程完成"><a href="#主协成如何等待其余协程完成" class="headerlink" title="主协成如何等待其余协程完成"></a>主协成如何等待其余协程完成</h2><ul>
+<li>使用channel进行通信</li>
+<li>使用sync.WaitGroup包</li>
+</ul>
+<h2 id="slice-len-cap-共享-扩容"><a href="#slice-len-cap-共享-扩容" class="headerlink" title="slice,len,cap,共享,扩容"></a>slice,len,cap,共享,扩容</h2><ul>
+<li>slice底层数据结构由，数组，len,cap 组成，append扩容时是以当前容量的2倍进行扩容</li>
+<li>slice 加锁可以实现消息队列</li>
+</ul>
+<h2 id="map"><a href="#map" class="headerlink" title="map"></a>map</h2><ul>
+<li>map 是非线程安全的，多个协程同时操作一个map，会导致程序崩溃</li>
+<li>map 是无序的，想要顺序读取，可将map的key放入切片后排序后进行map读取</li>
+<li>map key是唯一的，可用于实现set集合</li>
+<li>map 可实现发布订阅</li>
+</ul>
+<h2 id="大文件排序"><a href="#大文件排序" class="headerlink" title="大文件排序"></a>大文件排序</h2><ul>
+<li>归并算法</li>
+<li>利用goroutine 并发排序缩短时间</li>
+</ul>
+<h2 id="标准Http协议6种请求方法"><a href="#标准Http协议6种请求方法" class="headerlink" title="标准Http协议6种请求方法"></a>标准Http协议6种请求方法</h2><ul>
+<li>GET</li>
+<li>POST</li>
+<li>PUT</li>
+<li>DELETE</li>
+<li>HEAD<blockquote>
+<p>HEAD 常用于判定某个资源是否存在 </p>
+</blockquote>
+</li>
+<li>Options<blockquote>
+<p>用于检查资源地址是否有效</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h2><ul>
+<li>2PC</li>
+<li>TCC</li>
+<li>本地消息表</li>
+<li>MQ事务（RocketMQ）</li>
+</ul>
+<h2 id="golang中值类型和引用类型"><a href="#golang中值类型和引用类型" class="headerlink" title="golang中值类型和引用类型"></a>golang中值类型和引用类型</h2><ul>
+<li>值类型分别有：int系列、float系列、bool、string、数组和结构体</li>
+<li>引用类型有：指针、slice切片、管道channel、接口interface、map、函数等</li>
+<li>值类型的特点是：变量直接存储值，内存通常在栈中分配</li>
+<li>引用类型的特点是：变量存储的是一个地址，这个地址对应的空间里才是真正存储的值，内存通常在堆中分配,编译器会隐式地为我们解引用，取到指针指向的实际变量</li>
+</ul>
+<h2 id="Golang中除了加Mutex锁以外还有哪些方式安全读写共享变量？"><a href="#Golang中除了加Mutex锁以外还有哪些方式安全读写共享变量？" class="headerlink" title="Golang中除了加Mutex锁以外还有哪些方式安全读写共享变量？"></a>Golang中除了加Mutex锁以外还有哪些方式安全读写共享变量？</h2><p>Golang中Goroutine 可以通过 Channel 进行安全读写共享变量。</p>
+<h2 id="无缓冲-Chan-的发送和接收是否同步"><a href="#无缓冲-Chan-的发送和接收是否同步" class="headerlink" title="无缓冲 Chan 的发送和接收是否同步?"></a>无缓冲 Chan 的发送和接收是否同步?</h2><p>无缓冲的channel由于没有缓冲发送和接收需要同步.<br>有缓冲channel不要求发送和接收操作同步.<br>channel无缓冲时，发送阻塞直到数据被接收，接收阻塞直到读到数据。<br>channel有缓冲时，当缓冲满时发送阻塞，当缓冲空时接收阻塞。  </p>
+<h2 id="go语言的并发机制以及它所使用的CSP并发模型-GMP"><a href="#go语言的并发机制以及它所使用的CSP并发模型-GMP" class="headerlink" title="go语言的并发机制以及它所使用的CSP并发模型 GMP"></a>go语言的并发机制以及它所使用的CSP并发模型 GMP</h2><p>CSP模型是上个世纪七十年代提出的,不同于传统的多线程通过共享内存来通信，CSP讲究的是“以通信的方式来共享内存”。用于描述两个独立的并发实体通过共享的通讯 channel(管道)进行通信的并发模型。 CSP中channel是第一类对象，它不关注发送消息的实体，而关注与发送消息时使用的channel。<br>Golang中channel 是被单独创建并且可以在进程之间传递，它的通信模式类似于 boss-worker 模式的，一个实体通过将消息发送到channel 中，然后又监听这个 channel 的实体处理，两个实体之间是匿名的，这个就实现实体中间的解耦，其中 channel 是同步的一个消息被发送到 channel 中，最终是一定要被另外的实体消费掉的，在实现原理上其实类似一个阻塞的消息队列。<br>Goroutine 是Golang实际并发执行的实体，它底层是使用协程(coroutine)实现并发，coroutine是一种运行在用户态的用户线程，类似于 greenthread，go底层选择使用coroutine的出发点是因为，它具有以下特点：  </p>
+<ul>
+<li>用户空间 避免了内核态和用户态的切换导致的成本。</li>
+<li>可以由语言和框架层进行调度。</li>
+<li>更小的栈空间允许创建大量的实例。</li>
+</ul>
+<p>Golang中的Goroutine的特性:<br>Golang内部有三个对象： P对象(processor) 代表上下文（或者可以认为是cpu），M(work thread)代表工作线程，G对象（goroutine）.  </p>
+<ul>
+<li>G（Goroutine）我们所说的协程，为用户级的轻量级线程，每个Goroutine对象中的sched保存着其上下文信息.</li>
+<li>M（Machine） 对内核级线程的封装，数量最大值为1000</li>
+<li>P（Processor） 即为G和M的调度对象，用来调度G和M之间的关联关系，其数量可通过GOMAXPROCS()来设置，默认为核心数.</li>
+</ul>
+<p>GMP调度原理:<br>Goroutine 调度器和 OS 调度器是通过 M 结合起来的，每个 M 都代表了 1 个内核线程，OS 调度器负责把内核线程分配到 CPU 的核上执行。<br>M想要执行G,必须先获得P,在go中有,两个队列,一个全局的G队列和P本地队列,M从P本地队列中获取G,如果P本地队列为空,则从全局队列中拉取一些G放到本地队列,如果全局队列为空则从其他P本地队列偷取G来,放到自己的本地队列中.如果偷取失败,则当前M进入自旋状态,等待可执行的G,<br>而其他未获得P的会进入休眠状态,一定时间过后会被操作系统回收.<br>如果当前M执行G的过程中G发生阻塞,则P会立即分离出来,寻找空闲M进行绑定</p>
+<p>Golang的CSP并发模型，是通过Goroutine和Channel来实现的。<br>Goroutine 是Go语言中并发的执行单位。有点抽象，其实就是和传统概念上的”线程“类似，可以理解为”线程“。 Channel是Go语言中各个并发结构体(Goroutine)之前的通信机制。通常Channel，是各个Goroutine之间通信的”管道“，有点类似于Linux中的管道。<br>在通信过程中，传数据channel &lt;- data和取数据&lt;-channel必然会成对出现，因为这边传，那边取，两个goroutine之间才会实现通信。  </p>
+<h2 id="Golang-中常用的并发模式？"><a href="#Golang-中常用的并发模式？" class="headerlink" title="Golang 中常用的并发模式？"></a>Golang 中常用的并发模式？</h2><h3 id="生产者消费者模型"><a href="#生产者消费者模型" class="headerlink" title="生产者消费者模型"></a>生产者消费者模型</h3><p>并发编程中最常见的例子就是生产者消费者模式，该模式主要通过平衡生产线程和消费线程的工作能力来提高程序的整体处理数据的速度。简单地说，就是生产者生产一些数据，然后放到成果队列中，同时消费者从成果队列中来取这些数据。这样就让生产消费变成了异步的两个过程。当成果队列中没有数据时，消费者就进入饥饿的等待中；而当成果队列中数据已满时，生产者则面临因产品挤压导致CPU被剥夺的下岗问题。</p>
+<h3 id="发布订阅模型"><a href="#发布订阅模型" class="headerlink" title="发布订阅模型"></a>发布订阅模型</h3><p>发布订阅（publish-and-subscribe）模型通常被简写为pub/sub模型。在这个模型中，消息生产者成为发布者（publisher），而消息消费者则成为订阅者（subscriber），生产者和消费者是M:N的关系。在传统生产者和消费者模型中，是将消息发送到一个队列中，而发布订阅模型则是将消息发布给一个主题。</p>
+<h3 id="控制并发数"><a href="#控制并发数" class="headerlink" title="控制并发数"></a>控制并发数</h3><p>利用带缓存的channel实现</p>
+<h3 id="赢者为王"><a href="#赢者为王" class="headerlink" title="赢者为王"></a>赢者为王</h3><p>开启多个Goroutine 执行相同的任务,谁先返回,取谁的结果</p>
+<h3 id="并发的安全退出"><a href="#并发的安全退出" class="headerlink" title="并发的安全退出"></a>并发的安全退出</h3><p>通过select和channel 实现</p>
+<h3 id="context包-1"><a href="#context包-1" class="headerlink" title="context包"></a>context包</h3><p>在Go1.7发布时，标准库增加了一个context包，用来简化对于处理单个请求的多个Goroutine之间与请求域的数据、超时和退出等操作  </p>
+<h3 id="通过sync-WaitGroup实现并发控制"><a href="#通过sync-WaitGroup实现并发控制" class="headerlink" title="通过sync.WaitGroup实现并发控制"></a>通过sync.WaitGroup实现并发控制</h3><h2 id="JSON标准库对nil-slice和空slice的处理是一致的吗？"><a href="#JSON标准库对nil-slice和空slice的处理是一致的吗？" class="headerlink" title="JSON标准库对nil slice和空slice的处理是一致的吗？　"></a>JSON标准库对nil slice和空slice的处理是一致的吗？　</h2><p>不一直,nil slice会序列化成null ,空slice会序列化成空数组[]</p>
+<h2 id="协程，线程，进程的区别。"><a href="#协程，线程，进程的区别。" class="headerlink" title="协程，线程，进程的区别。"></a>协程，线程，进程的区别。</h2><h3 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h3><p>程是具有一定独立功能的程序关于某个数据集合上的一次运行活动,进程是系统进行资源分配和调度的一个独立单位。每个进程都有自己的独立内存空间，不同进程通过进程间通信来通信。由于进程比较重量，占据独立的内存，所以上下文进程间的切换开销（栈、寄存器、虚拟内存、文件句柄等）比较大，但相对比较稳定安全。</p>
+<h3 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h3><p>线程是进程的一个实体,是CPU调度和分派的基本单位,它是比进程更小的能独立运行的基本单位.线程自己基本上不拥有系统资源,只拥有一点在运行中必不可少的资源(如程序计数器,一组寄存器和栈),但是它可与同属一个进程的其他的线程共享进程所拥有的全部资源。线程间通信主要通过共享内存，上下文切换很快，资源开销较少，但相比进程不够稳定容易丢失数据。</p>
+<h3 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h3><p>协程是一种用户态的轻量级线程，协程的调度完全由用户控制。协程拥有自己的寄存器上下文和栈。协程调度切换时，将寄存器上下文和栈保存到其他地方，在切回来的时候，恢复先前保存的寄存器上下文和栈，直接操作栈则基本没有内核切换的开销，可以不加锁的访问全局变量，所以上下文的切换非常快。</p>
+<h2 id="互斥锁，读写锁，死锁问题是怎么解决"><a href="#互斥锁，读写锁，死锁问题是怎么解决" class="headerlink" title="互斥锁，读写锁，死锁问题是怎么解决"></a>互斥锁，读写锁，死锁问题是怎么解决</h2><h3 id="互斥锁"><a href="#互斥锁" class="headerlink" title="互斥锁"></a>互斥锁</h3><p>互斥锁就是互斥变量mutex，用来锁住临界区的.<br>条件锁就是条件变量，当进程的某些资源要求不满足时就进入休眠，也就是锁住了。当资源被分配到了，条件锁打开，进程继续运行；读写锁，也类似，用于缓冲区等临界资源能互斥访问的。  </p>
+<h3 id="读写锁"><a href="#读写锁" class="headerlink" title="读写锁"></a>读写锁</h3><p>通常有些公共数据修改的机会很少，但其读的机会很多。并且在读的过程中会伴随着查找，给这种代码加锁会降低我们的程序效率。读写锁可以解决这个问题。  </p>
+<blockquote>
+<p>注意：写独占，读共享，写锁优先级高</p>
+</blockquote>
+<h3 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h3><p>一般情况下，如果同一个线程先后两次调用lock，在第二次调用时，由于锁已经被占用，该线程会挂起等待别的线程释放锁，然而锁正是被自己占用着的，该线程又被挂起而没有机会释放锁，因此就永远处于挂起等待状态了，这叫做死锁（Deadlock）。 另外一种情况是：若线程A获得了锁1，线程B获得了锁2，这时线程A调用lock试图获得锁2，结果是需要挂起等待线程B释放锁2，而这时线程B也调用lock试图获得锁1，结果是需要挂起等待线程A释放锁1，于是线程A和B都永远处于挂起状态了。</p>
+<h4 id="死锁产生的四个必要条件"><a href="#死锁产生的四个必要条件" class="headerlink" title="死锁产生的四个必要条件"></a>死锁产生的四个必要条件</h4><p>1.互斥条件：一个资源每次只能被一个进程使用<br>2.请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放。<br>3.不剥夺条件:进程已获得的资源，在末使用完之前，不能强行剥夺。<br>4.循环等待条件:若干进程之间形成一种头尾相接的循环等待资源关系。<br> 这四个条件是死锁的必要条件，只要系统发生死锁，这些条件必然成立，而只要上述条件之一不满足，就不会发生死锁。  </p>
+<h3 id="怎么解决死锁问题"><a href="#怎么解决死锁问题" class="headerlink" title="怎么解决死锁问题"></a>怎么解决死锁问题</h3><h4 id="预防死锁"><a href="#预防死锁" class="headerlink" title="预防死锁"></a>预防死锁</h4><p>可以把资源一次性分配：（破坏请求和保持条件）<br>然后剥夺资源：即当某进程新的资源未满足时，释放已占有的资源（破坏不可剥夺条件）<br>资源有序分配法：系统给每类资源赋予一个编号，每一个进程按编号递增的顺序请求资源，释放则相反（破坏环路等待条件）</p>
+<h4 id="避免死锁"><a href="#避免死锁" class="headerlink" title="避免死锁"></a>避免死锁</h4><p>预防死锁的几种策略，会严重地损害系统性能。因此在避免死锁时，要施加较弱的限制，从而获得 较满意的系统性能。由于在避免死锁的策略中，允许进程动态地申请资源。因而，系统在进行资源分配之前预先计算资源分配的安全性。若此次分配不会导致系统进入不安全状态，则将资源分配给进程；否则，进程等待。其中最具有代表性的避免死锁算法是银行家算法。</p>
+<h4 id="检测死锁"><a href="#检测死锁" class="headerlink" title="检测死锁"></a>检测死锁</h4><p>首先为每个进程和每个资源指定一个唯一的号码,然后建立资源分配表和进程等待表.</p>
+<h4 id="解除死锁"><a href="#解除死锁" class="headerlink" title="解除死锁"></a>解除死锁</h4><p>当发现有进程死锁后，便应立即把它从死锁状态中解脱出来，常采用的方法有:  </p>
+<ol>
+<li>剥夺资源 从其它进程剥夺足够数量的资源给死锁进程，以解除死锁状态.</li>
+<li>撤消进程 可以直接撤消死锁进程或撤消代价最小的进程，直至有足够的资源可用，死锁状态.消除为止.所谓代价是指优先级、运行代价、进程的重要性和价值等。</li>
+</ol>
+<h2 id="Golang的内存模型，为什么小对象多了会造成gc压力"><a href="#Golang的内存模型，为什么小对象多了会造成gc压力" class="headerlink" title="Golang的内存模型，为什么小对象多了会造成gc压力"></a>Golang的内存模型，为什么小对象多了会造成gc压力</h2><h3 id="面向并发的内存模型"><a href="#面向并发的内存模型" class="headerlink" title="面向并发的内存模型"></a>面向并发的内存模型</h3><p>常见的并行编程有多种模型，主要有多线程、消息传递等。Go语言是基于消息并发模型的集大成者，它将基于CSP模型的并发编程内置到了语言中,并且go语言是共享内存的  </p>
+<h3 id="Goroutine和系统线程"><a href="#Goroutine和系统线程" class="headerlink" title="Goroutine和系统线程"></a>Goroutine和系统线程</h3><p>Goroutine采用的是半抢占式的协作调度，只有在当前Goroutine发生阻塞时才会导致调度；同时发生在用户态，调度器会根据具体函数只保存必要的寄存器，切换的代价要比系统线程低得多。运行时有一个runtime.GOMAXPROCS变量，用于控制当前运行正常非阻塞Goroutine的系统线程数目。  </p>
+<h3 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h3><p>所谓的原子操作就是并发编程中“最小的且不可并行化”的操作。</p>
+<h3 id="顺序一致性内存模型"><a href="#顺序一致性内存模型" class="headerlink" title="顺序一致性内存模型"></a>顺序一致性内存模型</h3><p>在Go语言中，同一个Goroutine线程内部，顺序一致性内存模型是得到保证的。但是不同的Goroutine之间，并不满足顺序一致性内存模型，需要通过明确定义的同步事件来作为同步的参考。</p>
+<p>通常小对象过多会导致GC三色法消耗过多的GPU。优化思路是，减少对象分配.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/goland%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># goland面试题</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/25/go/goland%E6%BF%80%E6%B4%BB%E6%95%99%E7%A8%8B/" rel="prev" title="go/goland激活教程">
+      <i class="fa fa-chevron-left"></i> go/goland激活教程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/25/go/gomod/" rel="next" title="go/gomod">
+      go/gomod <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#golang-调度"><span class="nav-number">1.</span> <span class="nav-text">golang 调度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go-结构体能不能进行比较"><span class="nav-number">2.</span> <span class="nav-text">go 结构体能不能进行比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结构体可以作为map的key吗"><span class="nav-number">3.</span> <span class="nav-text">结构体可以作为map的key吗</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go-defer-先进后出，栈结构"><span class="nav-number">4.</span> <span class="nav-text">go defer 先进后出，栈结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#select作用"><span class="nav-number">5.</span> <span class="nav-text">select作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#context包"><span class="nav-number">6.</span> <span class="nav-text">context包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主协成如何等待其余协程完成"><span class="nav-number">7.</span> <span class="nav-text">主协成如何等待其余协程完成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice-len-cap-共享-扩容"><span class="nav-number">8.</span> <span class="nav-text">slice,len,cap,共享,扩容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#map"><span class="nav-number">9.</span> <span class="nav-text">map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大文件排序"><span class="nav-number">10.</span> <span class="nav-text">大文件排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标准Http协议6种请求方法"><span class="nav-number">11.</span> <span class="nav-text">标准Http协议6种请求方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式事务"><span class="nav-number">12.</span> <span class="nav-text">分布式事务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#golang中值类型和引用类型"><span class="nav-number">13.</span> <span class="nav-text">golang中值类型和引用类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Golang中除了加Mutex锁以外还有哪些方式安全读写共享变量？"><span class="nav-number">14.</span> <span class="nav-text">Golang中除了加Mutex锁以外还有哪些方式安全读写共享变量？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无缓冲-Chan-的发送和接收是否同步"><span class="nav-number">15.</span> <span class="nav-text">无缓冲 Chan 的发送和接收是否同步?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go语言的并发机制以及它所使用的CSP并发模型-GMP"><span class="nav-number">16.</span> <span class="nav-text">go语言的并发机制以及它所使用的CSP并发模型 GMP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Golang-中常用的并发模式？"><span class="nav-number">17.</span> <span class="nav-text">Golang 中常用的并发模式？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#生产者消费者模型"><span class="nav-number">17.1.</span> <span class="nav-text">生产者消费者模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发布订阅模型"><span class="nav-number">17.2.</span> <span class="nav-text">发布订阅模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制并发数"><span class="nav-number">17.3.</span> <span class="nav-text">控制并发数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#赢者为王"><span class="nav-number">17.4.</span> <span class="nav-text">赢者为王</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发的安全退出"><span class="nav-number">17.5.</span> <span class="nav-text">并发的安全退出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#context包-1"><span class="nav-number">17.6.</span> <span class="nav-text">context包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过sync-WaitGroup实现并发控制"><span class="nav-number">17.7.</span> <span class="nav-text">通过sync.WaitGroup实现并发控制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JSON标准库对nil-slice和空slice的处理是一致的吗？"><span class="nav-number">18.</span> <span class="nav-text">JSON标准库对nil slice和空slice的处理是一致的吗？　</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#协程，线程，进程的区别。"><span class="nav-number">19.</span> <span class="nav-text">协程，线程，进程的区别。</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#进程"><span class="nav-number">19.1.</span> <span class="nav-text">进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程"><span class="nav-number">19.2.</span> <span class="nav-text">线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#协程"><span class="nav-number">19.3.</span> <span class="nav-text">协程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#互斥锁，读写锁，死锁问题是怎么解决"><span class="nav-number">20.</span> <span class="nav-text">互斥锁，读写锁，死锁问题是怎么解决</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#互斥锁"><span class="nav-number">20.1.</span> <span class="nav-text">互斥锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读写锁"><span class="nav-number">20.2.</span> <span class="nav-text">读写锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#死锁"><span class="nav-number">20.3.</span> <span class="nav-text">死锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#死锁产生的四个必要条件"><span class="nav-number">20.3.1.</span> <span class="nav-text">死锁产生的四个必要条件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#怎么解决死锁问题"><span class="nav-number">20.4.</span> <span class="nav-text">怎么解决死锁问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#预防死锁"><span class="nav-number">20.4.1.</span> <span class="nav-text">预防死锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#避免死锁"><span class="nav-number">20.4.2.</span> <span class="nav-text">避免死锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检测死锁"><span class="nav-number">20.4.3.</span> <span class="nav-text">检测死锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解除死锁"><span class="nav-number">20.4.4.</span> <span class="nav-text">解除死锁</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Golang的内存模型，为什么小对象多了会造成gc压力"><span class="nav-number">21.</span> <span class="nav-text">Golang的内存模型，为什么小对象多了会造成gc压力</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#面向并发的内存模型"><span class="nav-number">21.1.</span> <span class="nav-text">面向并发的内存模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Goroutine和系统线程"><span class="nav-number">21.2.</span> <span class="nav-text">Goroutine和系统线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原子操作"><span class="nav-number">21.3.</span> <span class="nav-text">原子操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#顺序一致性内存模型"><span class="nav-number">21.4.</span> <span class="nav-text">顺序一致性内存模型</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chen Yu"
+      src="/images/head.jpeg">
+  <p class="site-author-name" itemprop="name">Chen Yu</p>
+  <div class="site-description" itemprop="description">自律给我自由</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+<div>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv" style='display:none'>
+    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    <span class="post-meta-divider">|</span>
+</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+    有<span id="busuanzi_value_site_uv"></span>人看过我的博客啦
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

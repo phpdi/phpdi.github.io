@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="baidu-site-verification" content="D033aiBRFi">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://phpdi.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="为什么要使用Elasticsearch?因为在我们商城中的数据，将来会非常多，所以采用以往的模糊查询，模糊查询前置配置，会放弃索引，导致商品查询是全表扫面，在百万级别的数据库中，效率非常低下，而我们使用ES做一个全文索引，我们将经常查询的商品的某些字段，比如说商品名，描述、价格还有id这些字段我们放入我们索引库里，可以提高查询速度。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="interview&#x2F;Elasticsearch面试题">
+<meta property="og:url" content="https://phpdi.github.io/2021/03/25/interview/Elasticsearch%E9%9D%A2%E8%AF%95%E9%A2%98/index.html">
+<meta property="og:site_name" content="phpdi">
+<meta property="og:description" content="为什么要使用Elasticsearch?因为在我们商城中的数据，将来会非常多，所以采用以往的模糊查询，模糊查询前置配置，会放弃索引，导致商品查询是全表扫面，在百万级别的数据库中，效率非常低下，而我们使用ES做一个全文索引，我们将经常查询的商品的某些字段，比如说商品名，描述、价格还有id这些字段我们放入我们索引库里，可以提高查询速度。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-25T03:33:32.962Z">
+<meta property="article:modified_time" content="2021-03-25T03:33:32.966Z">
+<meta property="article:author" content="Chen Yu">
+<meta property="article:tag" content="elasticsearch面试题">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://phpdi.github.io/2021/03/25/interview/Elasticsearch%E9%9D%A2%E8%AF%95%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>interview/Elasticsearch面试题 | phpdi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">phpdi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">飞向自由</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2021/03/25/interview/Elasticsearch%E9%9D%A2%E8%AF%95%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpeg">
+      <meta itemprop="name" content="Chen Yu">
+      <meta itemprop="description" content="自律给我自由">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="phpdi">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          interview/Elasticsearch面试题
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-25 11:33:32" itemprop="dateCreated datePublished" datetime="2021-03-25T11:33:32+08:00">2021-03-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">elasticsearch</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="为什么要使用Elasticsearch"><a href="#为什么要使用Elasticsearch" class="headerlink" title="为什么要使用Elasticsearch?"></a>为什么要使用Elasticsearch?</h2><p>因为在我们商城中的数据，将来会非常多，所以采用以往的模糊查询，模糊查询前置配置，会放弃索引，导致商品查询是全表扫面，在百万级别的数据库中，<br>效率非常低下，而我们使用ES做一个全文索引，我们将经常查询的商品的某些字段，比如说商品名，描述、价格还有id这些字段我们放入我们索引库里，可以提高查询速度。</p>
+<a id="more"></a>
+
+<h2 id="Elasticsearch是如何实现Master选举的？"><a href="#Elasticsearch是如何实现Master选举的？" class="headerlink" title="Elasticsearch是如何实现Master选举的？"></a>Elasticsearch是如何实现Master选举的？</h2><p>Elasticsearch的选主是ZenDiscovery模块负责的，主要包含Ping（节点之间通过这个RPC来发现彼此）和Unicast（单播模块包含一个主机列表以控制哪些节点需要ping通）这两部分；<br>对所有可以成为master的节点（node.master: true）根据nodeId字典排序，每次选举每个节点都把自己所知道节点排一次序，然后选出第一个（第0位）节点，暂且认为它是master节点。<br>如果对某个节点的投票数达到一定的值（可以成为master节点数n/2+1）并且该节点自己也选举自己，那这个节点就是master。否则重新选举一直到满足上述条件。  </p>
+<blockquote>
+<blockquote>
+<p>补充：master节点的职责主要包括集群、节点和索引的管理，不负责文档级别的管理；data节点可以关闭http功能。</p>
+</blockquote>
+</blockquote>
+<h2 id="Elasticsearch中的节点（比如共20个），其中的10个选了一个master，另外10个选了另一个master，怎么办？"><a href="#Elasticsearch中的节点（比如共20个），其中的10个选了一个master，另外10个选了另一个master，怎么办？" class="headerlink" title="Elasticsearch中的节点（比如共20个），其中的10个选了一个master，另外10个选了另一个master，怎么办？"></a>Elasticsearch中的节点（比如共20个），其中的10个选了一个master，另外10个选了另一个master，怎么办？</h2><p>当集群master候选数量不小于3个时，可以通过设置最少投票通过数量（discovery.zen.minimum_master_nodes）超过所有候选节点一半以上来解决脑裂问题；<br>当候选数量为两个时，只能修改为唯一的一个master候选，其他作为data节点，避免脑裂问题。 </p>
+<h2 id="详细描述一下Elasticsearch索引文档的过程。"><a href="#详细描述一下Elasticsearch索引文档的过程。" class="headerlink" title="详细描述一下Elasticsearch索引文档的过程。"></a>详细描述一下Elasticsearch索引文档的过程。</h2><p>协调节点默认使用文档ID参与计算（也支持通过routing），以便为路由提供合适的分片。<br>shard = hash(document_id) % (num_of_primary_shards)<br>当分片所在的节点接收到来自协调节点的请求后，会将请求写入到Memory Buffer，然后定时（默认是每隔1秒）写入到Filesystem Cache，这个从Momery Buffer到Filesystem 　　Cache的过程就叫做refresh；<br>当然在某些情况下，存在Momery Buffer和Filesystem Cache的数据可能会丢失，ES是通过translog的机制来保证数据的可靠性的。其实现机制是接收到请求后，同时也会写入到translog中，当Filesystem cache中的数据写入到磁盘中时，才会清除掉，这个过程叫做flush；<br>在flush过程中，内存中的缓冲将被清除，内容被写入一个新段，段的fsync将创建一个新的提交点，并将内容刷新到磁盘，旧的translog将被删除并开始一个新的translog。<br>flush触发的时机是定时触发（默认30分钟）或者translog变得太大（默认为512M）时；  </p>
+<h2 id="详细描述一下Elasticsearch更新和删除文档的过程"><a href="#详细描述一下Elasticsearch更新和删除文档的过程" class="headerlink" title="详细描述一下Elasticsearch更新和删除文档的过程"></a>详细描述一下Elasticsearch更新和删除文档的过程</h2><p>删除和更新也都是写操作，但是Elasticsearch中的文档是不可变的，因此不能被删除或者改动以展示其变更；<br>磁盘上的每个段都有一个相应的.del文件。当删除请求发送后，文档并没有真的被删除，而是在.del文件中被标记为删除。该文档依然能匹配查询，但是会在结果中被过滤掉。当段合并时，在.del文件中被标记为删除的文档将不会被写入新段。<br>在新的文档被创建时，Elasticsearch会为该文档指定一个版本号，当执行更新时，旧版本的文档在.del文件中被标记为删除，新版本的文档被索引到一个新段。旧版本的文档依然能匹配查询，但是会在结果中被过滤掉。  </p>
+<h2 id="详细描述一下Elasticsearch搜索的过程"><a href="#详细描述一下Elasticsearch搜索的过程" class="headerlink" title="详细描述一下Elasticsearch搜索的过程"></a>详细描述一下Elasticsearch搜索的过程</h2><p>搜索被执行成一个两阶段过程，我们称之为 Query Then Fetch；<br>在初始查询阶段时，查询会广播到索引中每一个分片拷贝（主分片或者副本分片）。 每个分片在本地执行搜索并构建一个匹配文档的大小为 from + size 的优先队列。PS：在搜索的时候是会查询Filesystem Cache的，但是有部分数据还在Memory Buffer，所以搜索是近实时的。<br>每个分片返回各自优先队列中 所有文档的 ID 和排序值 给协调节点，它合并这些值到自己的优先队列中来产生一个全局排序后的结果列表。<br>接下来就是 取回阶段，协调节点辨别出哪些文档需要被取回并向相关的分片提交多个 GET 请求。每个分片加载并 丰富 文档，如果有需要的话，接着返回文档给协调节点。一旦所有的文档都被取回了，协调节点返回结果给客户端。<br>补充：Query Then Fetch的搜索类型在文档相关性打分的时候参考的是本分片的数据，这样在文档数量较少的时候可能不够准确，DFS Query Then Fetch增加了一个预查询的处理，询问Term和Document frequency，这个评分更准确，但是性能会变差。  </p>
+<h2 id="Elasticsearch对于大数据量（上亿量级）的聚合如何实现？"><a href="#Elasticsearch对于大数据量（上亿量级）的聚合如何实现？" class="headerlink" title="Elasticsearch对于大数据量（上亿量级）的聚合如何实现？"></a>Elasticsearch对于大数据量（上亿量级）的聚合如何实现？</h2><p>Elasticsearch 提供的首个近似聚合是cardinality 度量。它提供一个字段的基数，即该字段的distinct或者unique值的数目。它是基于HLL算法的。HLL 会先对我们的输入作哈希运算，然后根据哈希运算的结果中的 bits 做概率估算从而得到基数。其特点是：可配置的精度，用来控制内存的使用（更精确 ＝ 更多内存）；小的数据集精度是非常高的；我们可以通过配置参数，来设置去重需要的固定内存使用量。无论数千还是数十亿的唯一值，内存使用量只与你配置的精确度相关 .  </p>
+<h2 id="在并发情况下，Elasticsearch如果保证读写一致？"><a href="#在并发情况下，Elasticsearch如果保证读写一致？" class="headerlink" title="在并发情况下，Elasticsearch如果保证读写一致？"></a>在并发情况下，Elasticsearch如果保证读写一致？</h2><p>可以通过版本号使用乐观并发控制，以确保新版本不会被旧版本覆盖，由应用层来处理具体的冲突；<br>另外对于写操作，一致性级别支持quorum/one/all，默认为quorum，即只有当大多数分片可用时才允许写操作。但即使大多数可用，也可能存在因为网络等原因导致写入副本失败，这样该副本被认为故障，分片将会在一个不同的节点上重建。<br>对于读操作，可以设置replication为sync(默认)，这使得操作在主分片和副本分片都完成后才会返回；如果设置replication为async时，也可以通过设置搜索请求参数_preference为primary来查询主分片，确保文档是最新版本。  </p>
+<h2 id="ElasticSearch中的集群、节点、索引、文档、类型是什么？"><a href="#ElasticSearch中的集群、节点、索引、文档、类型是什么？" class="headerlink" title="ElasticSearch中的集群、节点、索引、文档、类型是什么？"></a>ElasticSearch中的集群、节点、索引、文档、类型是什么？</h2><p>群集是一个或多个节点（服务器）的集合，它们共同保存您的整个数据，并提供跨所有节点的联合索引和搜索功能。群集由唯一名称标识，默认情况下为“elasticsearch”。此名称很重要，因为如果节点设置为按名称加入群集，则该节点只能是群集的一部分。<br>节点是属于集群一部分的单个服务器。它存储数据并参与群集索引和搜索功能。<br>索引就像关系数据库中的“数据库”。它有一个定义多种类型的映射。索引是逻辑名称空间，映射到一个或多个主分片，并且可以有零个或多个副本分片。 MySQL =&gt;数据库 　　         ElasticSearch =&gt;索引<br>文档类似于关系数据库中的一行。不同之处在于索引中的每个文档可以具有不同的结构（字段），但是对于通用字段应该具有相同的数据类型。 MySQL =&gt; Databases =&gt; 　             Tables =&gt; Columns / Rows ElasticSearch =&gt; Indices =&gt; Types =&gt;具有属性的文档<br>类型是索引的逻辑类别/分区，其语义完全取决于用户。  </p>
+<h2 id="ElasticSearch中的分片是什么"><a href="#ElasticSearch中的分片是什么" class="headerlink" title="ElasticSearch中的分片是什么?"></a>ElasticSearch中的分片是什么?</h2><p>在大多数环境中，每个节点都在单独的盒子或虚拟机上运行。<br>索引 - 在Elasticsearch中，索引是文档的集合。<br>分片 -因为Elasticsearch是一个分布式搜索引擎，所以索引通常被分割成分布在多个节点上的被称为分片的元素。</p>
+<h2 id="什么是ElasticSearch？"><a href="#什么是ElasticSearch？" class="headerlink" title="什么是ElasticSearch？"></a>什么是ElasticSearch？</h2><p>Elasticsearch是一个基于Lucene的搜索引擎。它提供了具有HTTP Web界面和无架构JSON文档的分布式，多租户能力的全文搜索引擎。Elasticsearch是用Java开发的，根据Apache许可条款作为开源发布。</p>
+<h2 id="Elasticsearch中的倒排索引是什么？"><a href="#Elasticsearch中的倒排索引是什么？" class="headerlink" title="Elasticsearch中的倒排索引是什么？"></a>Elasticsearch中的倒排索引是什么？</h2><p>倒排索引是搜索引擎的核心。搜索引擎的主要目标是在查找发生搜索条件的文档时提供快速搜索。倒排索引是一种像数据结构一样的散列图，可将用户从单词导向文档或网页。它是搜索引擎的核心。其主要目标是快速搜索从数百万文件中查找数据。 </p>
+<h2 id="ElasticSearch中的集群、节点、索引、文档、类型是什么？-1"><a href="#ElasticSearch中的集群、节点、索引、文档、类型是什么？-1" class="headerlink" title="ElasticSearch中的集群、节点、索引、文档、类型是什么？"></a>ElasticSearch中的集群、节点、索引、文档、类型是什么？</h2><ul>
+<li>群集是一个或多个节点（服务器）的集合，它们共同保存您的整个数据，并提供跨所有节点的联合索引和搜索功能。群集由唯一名称标识，默认情况下为“elasticsearch”。此名称很重要，因为如果节点设置为按名称加入群集，则该节点只能是群集的一部分。</li>
+<li>节点是属于集群一部分的单个服务器。它存储数据并参与群集索引和搜索功能。</li>
+<li>索引就像关系数据库中的“数据库”。它有一个定义多种类型的映射。索引是逻辑名称空间，映射到一个或多个主分片，并且可以有零个或多个副本分片。 MySQL =&gt;数据库 ElasticSearch =&gt;索引</li>
+<li>文档类似于关系数据库中的一行。不同之处在于索引中的每个文档可以具有不同的结构（字段），但是对于通用字段应该具有相同的数据类型。 MySQL =&gt; Databases =&gt; Tables =&gt; Columns / Rows ElasticSearch =&gt; Indices =&gt; Types =&gt;具有属性的文档</li>
+<li>类型是索引的逻辑类别/分区，其语义完全取决于用户。</li>
+</ul>
+<h2 id="ElasticSearch是否有架构？"><a href="#ElasticSearch是否有架构？" class="headerlink" title="ElasticSearch是否有架构？"></a>ElasticSearch是否有架构？</h2><p>ElasticSearch可以有一个架构。架构是描述文档类型以及如何处理文档的不同字段的一个或多个字段的描述。Elasticsearch中的架构是一种映射，它描述了JSON文档中的字段及其数据类型，以及它们应该如何在Lucene索引中进行索引。因此，在Elasticsearch术语中，我们通常将此模式称为“映射”。   </p>
+<p>Elasticsearch具有架构灵活的能力，这意味着可以在不明确提供架构的情况下索引文档。如果未指定映射，则默认情况下，Elasticsearch会在索引期间检测文档中的新字段时动态生成一个映射。  </p>
+<h2 id="ElasticSearch中的分片是什么？"><a href="#ElasticSearch中的分片是什么？" class="headerlink" title="ElasticSearch中的分片是什么？"></a>ElasticSearch中的分片是什么？</h2><p>在大多数环境中，每个节点都在单独的盒子或虚拟机上运行。<br>索引 - 在Elasticsearch中，索引是文档的集合。<br>分片 -因为Elasticsearch是一个分布式搜索引擎，所以索引通常被分割成分布在多个节点上的被称为分片的元素。  </p>
+<h2 id="ElasticSearch中的副本是什么？"><a href="#ElasticSearch中的副本是什么？" class="headerlink" title="ElasticSearch中的副本是什么？"></a>ElasticSearch中的副本是什么？</h2><p>个索引被分解成碎片以便于分发和扩展。副本是分片的副本。一个节点是一个属于一个集群的ElasticSearch的运行实例。一个集群由一个或多个共享相同集群名称的节点组成。  </p>
+<h2 id="ElasticSearch中的分析器是什么？"><a href="#ElasticSearch中的分析器是什么？" class="headerlink" title="ElasticSearch中的分析器是什么？"></a>ElasticSearch中的分析器是什么？</h2><p>在ElasticSearch中索引数据时，数据由为索引定义的Analyzer在内部进行转换。 分析器由一个Tokenizer和零个或多个TokenFilter组成。编译器可以在一个或多个CharFilter之前。分析模块允许您在逻辑名称下注册分析器，然后可以在映射定义或某些API中引用它们。  </p>
+<p>Elasticsearch附带了许多可以随时使用的预建分析器。或者，您可以组合内置的字符过滤器，编译器和过滤器器来创建自定义分析器。</p>
+<h2 id="什么是ElasticSearch中的编译器？"><a href="#什么是ElasticSearch中的编译器？" class="headerlink" title="什么是ElasticSearch中的编译器？"></a>什么是ElasticSearch中的编译器？</h2><p>编译器用于将字符串分解为术语或标记流。一个简单的编译器可能会将字符串拆分为任何遇到空格或标点的地方。Elasticsearch有许多内置标记器，可用于构建自定义分析器。  </p>
+<h2 id="启用属性，索引和存储的用途是什么？"><a href="#启用属性，索引和存储的用途是什么？" class="headerlink" title="启用属性，索引和存储的用途是什么？"></a>启用属性，索引和存储的用途是什么？</h2><p>enabled属性适用于各类ElasticSearch特定/创建领域，如index和size。用户提供的字段没有“已启用”属性。 存储意味着数据由Lucene存储，如果询问，将返回这些数据。<br>存储字段不一定是可搜索的。默认情况下，字段不存储，但源文件是完整的。因为您希望使用默认值(这是有意义的)，所以不要设置store属性 该指数属性用于搜索。<br>索引属性只能用于搜索。只有索引域可以进行搜索。差异的原因是在分析期间对索引字段进行了转换，因此如果需要的话，您不能检索原始数据。  </p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/elasticsearch%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># elasticsearch面试题</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/25/interview/Kafka%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="prev" title="interview/Kafka面试题">
+      <i class="fa fa-chevron-left"></i> interview/Kafka面试题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/25/interview/Rabbitmq%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="next" title="interview/Rabbitmq面试题">
+      interview/Rabbitmq面试题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要使用Elasticsearch"><span class="nav-number">1.</span> <span class="nav-text">为什么要使用Elasticsearch?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch是如何实现Master选举的？"><span class="nav-number">2.</span> <span class="nav-text">Elasticsearch是如何实现Master选举的？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch中的节点（比如共20个），其中的10个选了一个master，另外10个选了另一个master，怎么办？"><span class="nav-number">3.</span> <span class="nav-text">Elasticsearch中的节点（比如共20个），其中的10个选了一个master，另外10个选了另一个master，怎么办？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#详细描述一下Elasticsearch索引文档的过程。"><span class="nav-number">4.</span> <span class="nav-text">详细描述一下Elasticsearch索引文档的过程。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#详细描述一下Elasticsearch更新和删除文档的过程"><span class="nav-number">5.</span> <span class="nav-text">详细描述一下Elasticsearch更新和删除文档的过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#详细描述一下Elasticsearch搜索的过程"><span class="nav-number">6.</span> <span class="nav-text">详细描述一下Elasticsearch搜索的过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch对于大数据量（上亿量级）的聚合如何实现？"><span class="nav-number">7.</span> <span class="nav-text">Elasticsearch对于大数据量（上亿量级）的聚合如何实现？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在并发情况下，Elasticsearch如果保证读写一致？"><span class="nav-number">8.</span> <span class="nav-text">在并发情况下，Elasticsearch如果保证读写一致？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElasticSearch中的集群、节点、索引、文档、类型是什么？"><span class="nav-number">9.</span> <span class="nav-text">ElasticSearch中的集群、节点、索引、文档、类型是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElasticSearch中的分片是什么"><span class="nav-number">10.</span> <span class="nav-text">ElasticSearch中的分片是什么?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是ElasticSearch？"><span class="nav-number">11.</span> <span class="nav-text">什么是ElasticSearch？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch中的倒排索引是什么？"><span class="nav-number">12.</span> <span class="nav-text">Elasticsearch中的倒排索引是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElasticSearch中的集群、节点、索引、文档、类型是什么？-1"><span class="nav-number">13.</span> <span class="nav-text">ElasticSearch中的集群、节点、索引、文档、类型是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElasticSearch是否有架构？"><span class="nav-number">14.</span> <span class="nav-text">ElasticSearch是否有架构？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElasticSearch中的分片是什么？"><span class="nav-number">15.</span> <span class="nav-text">ElasticSearch中的分片是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElasticSearch中的副本是什么？"><span class="nav-number">16.</span> <span class="nav-text">ElasticSearch中的副本是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElasticSearch中的分析器是什么？"><span class="nav-number">17.</span> <span class="nav-text">ElasticSearch中的分析器是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是ElasticSearch中的编译器？"><span class="nav-number">18.</span> <span class="nav-text">什么是ElasticSearch中的编译器？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启用属性，索引和存储的用途是什么？"><span class="nav-number">19.</span> <span class="nav-text">启用属性，索引和存储的用途是什么？</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chen Yu"
+      src="/images/head.jpeg">
+  <p class="site-author-name" itemprop="name">Chen Yu</p>
+  <div class="site-description" itemprop="description">自律给我自由</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+<div>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv" style='display:none'>
+    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    <span class="post-meta-divider">|</span>
+</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+    有<span id="busuanzi_value_site_uv"></span>人看过我的博客啦
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

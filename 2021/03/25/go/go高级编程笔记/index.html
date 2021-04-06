@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="baidu-site-verification" content="D033aiBRFi">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://phpdi.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="go语言高级编程 语言基础函数、方法和接口 init不是普通函数，可以定义有多个，所以也不能被其它函数调用 如果某个init函数内部用go关键字启动了新的goroutine的话，新的goroutine只有在进入main.main函数之后才可能被执行到。 每种类型对应的方法必须和类型的定义在同一个包中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go&#x2F;go高级编程笔记">
+<meta property="og:url" content="https://phpdi.github.io/2021/03/25/go/go%E9%AB%98%E7%BA%A7%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="phpdi">
+<meta property="og:description" content="go语言高级编程 语言基础函数、方法和接口 init不是普通函数，可以定义有多个，所以也不能被其它函数调用 如果某个init函数内部用go关键字启动了新的goroutine的话，新的goroutine只有在进入main.main函数之后才可能被执行到。 每种类型对应的方法必须和类型的定义在同一个包中">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-25T03:33:32.181Z">
+<meta property="article:modified_time" content="2021-03-25T03:33:32.181Z">
+<meta property="article:author" content="Chen Yu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://phpdi.github.io/2021/03/25/go/go%E9%AB%98%E7%BA%A7%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>go/go高级编程笔记 | phpdi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">phpdi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">飞向自由</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://phpdi.github.io/2021/03/25/go/go%E9%AB%98%E7%BA%A7%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpeg">
+      <meta itemprop="name" content="Chen Yu">
+      <meta itemprop="description" content="自律给我自由">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="phpdi">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          go/go高级编程笔记
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-25 11:33:32" itemprop="dateCreated datePublished" datetime="2021-03-25T11:33:32+08:00">2021-03-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index">
+                    <span itemprop="name">go</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://chai2010.cn/advanced-go-programming-book/" target="_blank" rel="noopener">go语言高级编程</a></p>
+<h1 id="语言基础"><a href="#语言基础" class="headerlink" title="语言基础"></a>语言基础</h1><h2 id="函数、方法和接口"><a href="#函数、方法和接口" class="headerlink" title="函数、方法和接口"></a>函数、方法和接口</h2><ul>
+<li>init不是普通函数，可以定义有多个，所以也不能被其它函数调用</li>
+<li>如果某个init函数内部用go关键字启动了新的goroutine的话，新的goroutine只有在进入main.main函数之后才可能被执行到。</li>
+<li>每种类型对应的方法必须和类型的定义在同一个包中<a id="more"></a>
+
+
+</li>
+</ul>
+<h2 id="面向并发的内存模型"><a href="#面向并发的内存模型" class="headerlink" title="面向并发的内存模型"></a>面向并发的内存模型</h2><ul>
+<li>go基于CSP(通信顺序进程)模型实现并发,并且Goroutine之间可共享内存</li>
+<li>Goroutine和系统线程不是等价的,一般系统线程占用一个固定大小的栈(2MB),Goroutine以一个大约2kb的栈启动,并且可以动态伸缩,最大可达1G的栈空间</li>
+<li>Goroutine采用的是半抢占式的协作调度,只有在当前Goroutine发生阻塞时才会发生调度</li>
+<li>初始化顺序 同包内(const &gt; var &gt; init),如果一个包内有多个init函数,会根据文件名顺序进行调用</li>
+<li>可通过带缓存的channel,控制Goroutine的并发数量</li>
+<li>顺序一致性内存模型 Go语言中，同一个Goroutine线程内部，顺序一致性内存模型是得到保证的。但是不同的Goroutine之间，并不满足顺序一致性内存模型<blockquote>
+<p>如果在一个Goroutine中顺序执行a = 1; b = 2;两个语句，虽然在当前的Goroutine中可以认为a = 1;语句先于b = 2;语句执行，但是在另一个Goroutine中b = 2;语句可能会先于a = 1;语句执行，甚至在另一个Goroutine中无法看到它们的变化（可能始终在寄存器中）</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="常见并发模式"><a href="#常见并发模式" class="headerlink" title="常见并发模式"></a>常见并发模式</h2><p>不要通过共享内存来通信,而应通过通信来共享内存</p>
+<ul>
+<li>等待N个线程完成后再进行下一步同步操作,可以使用sync.WaitGroup来实现</li>
+<li>生产者消费者模型</li>
+<li>发布订阅模型</li>
+<li>控制并发数</li>
+<li>赢者为王 通过适当开启一些冗余的线程，尝试用不同途径去解决同样的问题，最终以赢者为王的方式提升了程序的相应性能。</li>
+<li>素数筛</li>
+<li>并发的安全退出</li>
+<li>通过Context包,实现Goroutine安全退出</li>
+</ul>
+<h1 id="第5章-Go和Web"><a href="#第5章-Go和Web" class="headerlink" title="第5章 Go和Web"></a>第5章 Go和Web</h1><h2 id="哪些事情适合在中间件中做"><a href="#哪些事情适合在中间件中做" class="headerlink" title="哪些事情适合在中间件中做"></a>哪些事情适合在中间件中做</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">compress.go</span><br><span class="line">  &#x3D;&gt; 对http的响应体进行压缩处理</span><br><span class="line">heartbeat.go</span><br><span class="line">  &#x3D;&gt; 设置一个特殊的路由，例如&#x2F;ping，&#x2F;healthcheck，用来给负载均衡一类的前置服务进行探活</span><br><span class="line">logger.go</span><br><span class="line">  &#x3D;&gt; 打印请求处理处理日志，例如请求处理时间，请求路由</span><br><span class="line">profiler.go</span><br><span class="line">  &#x3D;&gt; 挂载pprof需要的路由，如&#96;&#x2F;pprof&#96;、&#96;&#x2F;pprof&#x2F;trace&#96;到系统中</span><br><span class="line">realip.go</span><br><span class="line">  &#x3D;&gt; 从请求头中读取X-Forwarded-For和X-Real-IP，将http.Request中的RemoteAddr修改为得到的RealIP</span><br><span class="line">requestid.go</span><br><span class="line">  &#x3D;&gt; 为本次请求生成单独的requestid，可一路透传，用来生成分布式调用链路，也可用于在日志中串连单次请求的所有逻辑</span><br><span class="line">timeout.go</span><br><span class="line">  &#x3D;&gt; 用context.Timeout设置超时时间，并将其通过http.Request一路透传下去</span><br><span class="line">throttler.go</span><br><span class="line">  &#x3D;&gt; 通过定长大小的channel存储token，并通过这些token对接口进行限流</span><br></pre></td></tr></table></figure>
+
+<h2 id="常见的流量限制手段"><a href="#常见的流量限制手段" class="headerlink" title="常见的流量限制手段"></a>常见的流量限制手段</h2><p>1.漏桶是指我们有一个一直装满了水的桶，每过固定的一段时间即向外漏一滴水。如果你接到了这滴水，那么你就可以继续服务请求，如果没有接到，那么就需要等待下一滴水。  </p>
+<p>2.令牌桶则是指匀速向桶中添加令牌，服务请求时需要从桶中获取令牌，令牌的数目可以按照需要消耗的资源进行相应的调整。如果没有令牌，可以选择等待，或者放弃。  </p>
+<p>实际应用中令牌桶应用较为广泛，开源界流行的限流器大多数都是基于令牌桶思想的。并且在此基础上进行了一定程度的扩充，比如github.com/juju/ratelimit  </p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/25/go/go%E5%AD%A6%E4%B9%A0%E4%B9%A6%E7%B1%8D/" rel="prev" title="go/go学习书籍">
+      <i class="fa fa-chevron-left"></i> go/go学习书籍
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/25/go/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F(golang%E7%89%88%E6%9C%AC)/" rel="next" title="go/设计模式(golang版本)">
+      go/设计模式(golang版本) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#语言基础"><span class="nav-number">1.</span> <span class="nav-text">语言基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数、方法和接口"><span class="nav-number">1.1.</span> <span class="nav-text">函数、方法和接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#面向并发的内存模型"><span class="nav-number">1.2.</span> <span class="nav-text">面向并发的内存模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见并发模式"><span class="nav-number">1.3.</span> <span class="nav-text">常见并发模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第5章-Go和Web"><span class="nav-number">2.</span> <span class="nav-text">第5章 Go和Web</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#哪些事情适合在中间件中做"><span class="nav-number">2.1.</span> <span class="nav-text">哪些事情适合在中间件中做</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见的流量限制手段"><span class="nav-number">2.2.</span> <span class="nav-text">常见的流量限制手段</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chen Yu"
+      src="/images/head.jpeg">
+  <p class="site-author-name" itemprop="name">Chen Yu</p>
+  <div class="site-description" itemprop="description">自律给我自由</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+<div>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv" style='display:none'>
+    本站总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    <span class="post-meta-divider">|</span>
+</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+    有<span id="busuanzi_value_site_uv"></span>人看过我的博客啦
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
